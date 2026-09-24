@@ -13,14 +13,14 @@ const GOOGLE_SCRIPT_URL =
 
 
 /* =========================================================
-   INITIALIZE APPLICATION
+   APPLICATION
 ========================================================= */
 
 function initializeEnquiryForm() {
 
 
     /* =====================================================
-       DOM ELEMENTS
+       DOM
     ===================================================== */
 
     const enquiryForm =
@@ -74,18 +74,13 @@ function initializeEnquiryForm() {
         );
 
 
-    /* =====================================================
-       FORM EXISTENCE CHECK
-    ===================================================== */
-
     if (!enquiryForm) {
 
         console.error(
-            "ITSA Enquiry Form: #enquiryForm not found."
+            "ITSA Enquiry Form not found."
         );
 
         return;
-
     }
 
 
@@ -150,15 +145,10 @@ function initializeEnquiryForm() {
         clearErrors();
 
 
-        /* -------------------------------------------------
-           STUDENT NAME
-        ------------------------------------------------- */
-
         const studentName =
             document.getElementById(
                 "studentName"
             );
-
 
         if (
             !studentName ||
@@ -171,19 +161,13 @@ function initializeEnquiryForm() {
             );
 
             valid = false;
-
         }
 
-
-        /* -------------------------------------------------
-           GUARDIAN NAME
-        ------------------------------------------------- */
 
         const guardianName =
             document.getElementById(
                 "guardianName"
             );
-
 
         if (
             !guardianName ||
@@ -196,19 +180,13 @@ function initializeEnquiryForm() {
             );
 
             valid = false;
-
         }
 
-
-        /* -------------------------------------------------
-           GUARDIAN TYPE
-        ------------------------------------------------- */
 
         const guardianType =
             document.getElementById(
                 "guardianType"
             );
-
 
         if (
             !guardianType ||
@@ -221,13 +199,8 @@ function initializeEnquiryForm() {
             );
 
             valid = false;
-
         }
 
-
-        /* -------------------------------------------------
-           MOBILE
-        ------------------------------------------------- */
 
         const mobile =
             document.getElementById(
@@ -235,25 +208,9 @@ function initializeEnquiryForm() {
             );
 
 
-        const mobilePattern =
-            /^[6-9]\d{9}$/;
-
-
         if (
             !mobile ||
-            !mobile.value.trim()
-        ) {
-
-            showError(
-                "mobile",
-                "Please enter mobile number."
-            );
-
-            valid = false;
-
-        }
-        else if (
-            !mobilePattern.test(
+            !/^[6-9]\d{9}$/.test(
                 mobile.value.trim()
             )
         ) {
@@ -264,13 +221,8 @@ function initializeEnquiryForm() {
             );
 
             valid = false;
-
         }
 
-
-        /* -------------------------------------------------
-           EMAIL
-        ------------------------------------------------- */
 
         const email =
             document.getElementById(
@@ -280,34 +232,20 @@ function initializeEnquiryForm() {
 
         if (
             email &&
-            email.value.trim()
+            email.value.trim() &&
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                email.value.trim()
+            )
         ) {
 
-            const emailPattern =
-                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            showError(
+                "email",
+                "Please enter a valid email address."
+            );
 
-
-            if (
-                !emailPattern.test(
-                    email.value.trim()
-                )
-            ) {
-
-                showError(
-                    "email",
-                    "Please enter a valid email address."
-                );
-
-                valid = false;
-
-            }
-
+            valid = false;
         }
 
-
-        /* -------------------------------------------------
-           CLASS
-        ------------------------------------------------- */
 
         const classEnquiryFor =
             document.getElementById(
@@ -326,13 +264,8 @@ function initializeEnquiryForm() {
             );
 
             valid = false;
-
         }
 
-
-        /* -------------------------------------------------
-           TRAINING TYPE
-        ------------------------------------------------- */
 
         const trainingType =
             document.querySelector(
@@ -347,7 +280,6 @@ function initializeEnquiryForm() {
                     "trainingTypeError"
                 );
 
-
             if (error) {
 
                 error.textContent =
@@ -355,19 +287,16 @@ function initializeEnquiryForm() {
 
             }
 
-
             valid = false;
-
         }
 
 
         return valid;
-
     }
 
 
     /* =====================================================
-       SHOW FIELD ERROR
+       SHOW ERROR
     ===================================================== */
 
     function showError(
@@ -379,7 +308,6 @@ function initializeEnquiryForm() {
             document.getElementById(
                 fieldId
             );
-
 
         const error =
             document.getElementById(
@@ -445,47 +373,7 @@ function initializeEnquiryForm() {
 
 
     /* =====================================================
-       CLEAR ERROR WHEN USER EDITS FIELD
-    ===================================================== */
-
-    document
-        .querySelectorAll(
-            "#enquiryForm input, " +
-            "#enquiryForm select, " +
-            "#enquiryForm textarea"
-        )
-        .forEach(
-            function (element) {
-
-                element.addEventListener(
-                    "input",
-                    function () {
-
-                        this.classList.remove(
-                            "input-error"
-                        );
-
-                    }
-                );
-
-
-                element.addEventListener(
-                    "change",
-                    function () {
-
-                        this.classList.remove(
-                            "input-error"
-                        );
-
-                    }
-                );
-
-            }
-        );
-
-
-    /* =====================================================
-       LOADING STATE
+       LOADING
     ===================================================== */
 
     function setLoading(
@@ -559,268 +447,6 @@ function initializeEnquiryForm() {
 
 
     /* =====================================================
-       GENERATE CLIENT TOKEN
-    ===================================================== */
-
-    function generateClientToken() {
-
-        if (
-            window.crypto &&
-            typeof window.crypto.randomUUID ===
-                "function"
-        ) {
-
-            return window.crypto.randomUUID();
-
-        }
-
-
-        return (
-            Date.now().toString(36) +
-            "_" +
-            Math.random()
-                .toString(36)
-                .substring(2) +
-            "_" +
-            Math.random()
-                .toString(36)
-                .substring(2)
-        );
-
-    }
-
-
-    /* =====================================================
-       JSONP LOOKUP
-    ===================================================== */
-
-    function lookupEnquiryId(
-        token
-    ) {
-
-        return new Promise(
-            function (resolve) {
-
-                const callbackName =
-                    "itsaCallback_" +
-                    Date.now() +
-                    "_" +
-                    Math.floor(
-                        Math.random() *
-                        100000
-                    );
-
-
-                const script =
-                    document.createElement(
-                        "script"
-                    );
-
-
-                let completed =
-                    false;
-
-
-                function cleanup() {
-
-                    if (
-                        script &&
-                        script.parentNode
-                    ) {
-
-                        script.parentNode.removeChild(
-                            script
-                        );
-
-                    }
-
-
-                    try {
-
-                        delete window[
-                            callbackName
-                        ];
-
-                    }
-                    catch (error) {
-
-                        window[
-                            callbackName
-                        ] = undefined;
-
-                    }
-
-                }
-
-
-                window[
-                    callbackName
-                ] = function (
-                    result
-                ) {
-
-                    if (completed) {
-                        return;
-                    }
-
-
-                    completed =
-                        true;
-
-
-                    cleanup();
-
-
-                    if (
-                        result &&
-                        result.success &&
-                        result.found &&
-                        result.enquiryId
-                    ) {
-
-                        resolve(
-                            result.enquiryId
-                        );
-
-                    }
-                    else {
-
-                        resolve(
-                            null
-                        );
-
-                    }
-
-                };
-
-
-                script.onerror =
-                    function () {
-
-                        if (completed) {
-                            return;
-                        }
-
-
-                        completed =
-                            true;
-
-
-                        cleanup();
-
-
-                        resolve(
-                            null
-                        );
-
-                    };
-
-
-                setTimeout(
-                    function () {
-
-                        if (completed) {
-                            return;
-                        }
-
-
-                        completed =
-                            true;
-
-
-                        cleanup();
-
-
-                        resolve(
-                            null
-                        );
-
-                    },
-                    4000
-                );
-
-
-                script.src =
-                    GOOGLE_SCRIPT_URL +
-                    "?action=getEnquiryId" +
-                    "&token=" +
-                    encodeURIComponent(
-                        token
-                    ) +
-                    "&callback=" +
-                    encodeURIComponent(
-                        callbackName
-                    );
-
-
-                document.head.appendChild(
-                    script
-                );
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       WAIT FOR REAL ENQUIRY ID
-    ===================================================== */
-
-    async function waitForEnquiryId(
-        token
-    ) {
-
-        /*
-         * Give Apps Script time to finish
-         * the POST and save the property.
-         */
-
-        for (
-            let attempt = 1;
-            attempt <= 10;
-            attempt++
-        ) {
-
-            console.log(
-                "Enquiry ID lookup attempt:",
-                attempt
-            );
-
-
-            const enquiryId =
-                await lookupEnquiryId(
-                    token
-                );
-
-
-            if (enquiryId) {
-
-                return enquiryId;
-
-            }
-
-
-            await new Promise(
-                function (resolve) {
-
-                    setTimeout(
-                        resolve,
-                        1000
-                    );
-
-                }
-            );
-
-        }
-
-
-        return null;
-
-    }
-
-
-    /* =====================================================
        ESCAPE HTML
     ===================================================== */
 
@@ -831,27 +457,22 @@ function initializeEnquiryForm() {
         return String(
             value
         )
-
             .replace(
                 /&/g,
                 "&amp;"
             )
-
             .replace(
                 /</g,
                 "&lt;"
             )
-
             .replace(
                 />/g,
                 "&gt;"
             )
-
             .replace(
                 /"/g,
                 "&quot;"
             )
-
             .replace(
                 /'/g,
                 "&#039;"
@@ -861,19 +482,16 @@ function initializeEnquiryForm() {
 
 
     /* =====================================================
-       SUCCESS SCREEN
+       SHOW SUCCESS
     ===================================================== */
 
     function showSubmissionSuccess(
         enquiryId
     ) {
 
-        if (!enquiryForm) {
-            return;
-        }
-
-
-        if (successEnquiryId) {
+        if (
+            successEnquiryId
+        ) {
 
             if (enquiryId) {
 
@@ -922,7 +540,7 @@ function initializeEnquiryForm() {
 
 
     /* =====================================================
-       SUBMISSION ERROR
+       ERROR
     ===================================================== */
 
     function showSubmissionError(
@@ -937,18 +555,103 @@ function initializeEnquiryForm() {
 
 
     /* =====================================================
+       RECEIVE RESPONSE FROM APPS SCRIPT
+    ===================================================== */
+
+    function handleAppsScriptMessage(
+        event
+    ) {
+
+        if (
+            !event ||
+            !event.data
+        ) {
+
+            return;
+
+        }
+
+
+        const data =
+            event.data;
+
+
+        if (
+            data.type !==
+            "ITSA_ENQUIRY_RESULT"
+        ) {
+
+            return;
+
+        }
+
+
+        console.log(
+            "Apps Script response received:",
+            data
+        );
+
+
+        if (
+            data.result &&
+            data.result.success &&
+            data.result.enquiryId
+        ) {
+
+            showSubmissionSuccess(
+                data.result.enquiryId
+            );
+
+
+            setLoading(
+                false
+            );
+
+
+            return;
+
+        }
+
+
+        setLoading(
+            false
+        );
+
+
+        showSubmissionError(
+            data.result &&
+            data.result.error
+                ? data.result.error
+                : "Unable to submit enquiry."
+        );
+
+    }
+
+
+    /* =====================================================
+       LISTEN FOR APPS SCRIPT MESSAGE
+    ===================================================== */
+
+    window.addEventListener(
+        "message",
+        handleAppsScriptMessage,
+        false
+    );
+
+
+    /* =====================================================
        FORM SUBMISSION
     ===================================================== */
 
     enquiryForm.addEventListener(
         "submit",
-        async function (event) {
+        function (event) {
 
             event.preventDefault();
 
 
             /* ---------------------------------------------
-               VALIDATE
+               VALIDATION
             --------------------------------------------- */
 
             if (
@@ -974,14 +677,11 @@ function initializeEnquiryForm() {
 
 
             /* ---------------------------------------------
-               CHECK APPS SCRIPT URL
+               CHECK URL
             --------------------------------------------- */
 
             if (
                 !GOOGLE_SCRIPT_URL ||
-                !GOOGLE_SCRIPT_URL.includes(
-                    "script.google.com/macros/s/"
-                ) ||
                 !GOOGLE_SCRIPT_URL.endsWith(
                     "/exec"
                 )
@@ -997,25 +697,11 @@ function initializeEnquiryForm() {
 
 
             /* ---------------------------------------------
-               START LOADING
+               LOADING
             --------------------------------------------- */
 
             setLoading(
                 true
-            );
-
-
-            /* ---------------------------------------------
-               GENERATE TOKEN
-            --------------------------------------------- */
-
-            const clientToken =
-                generateClientToken();
-
-
-            console.log(
-                "ITSA client token:",
-                clientToken
             );
 
 
@@ -1035,14 +721,8 @@ function initializeEnquiryForm() {
             );
 
 
-            formData.set(
-                "clientToken",
-                clientToken
-            );
-
-
             /* ---------------------------------------------
-               HIDDEN IFRAME
+               CREATE IFRAME
             --------------------------------------------- */
 
             const frameName =
@@ -1074,7 +754,7 @@ function initializeEnquiryForm() {
 
 
             /* ---------------------------------------------
-               NATIVE POST FORM
+               CREATE POST FORM
             --------------------------------------------- */
 
             const postForm =
@@ -1104,7 +784,7 @@ function initializeEnquiryForm() {
 
 
             /* ---------------------------------------------
-               ADD ALL DATA
+               ADD FORM FIELDS
             --------------------------------------------- */
 
             for (
@@ -1148,22 +828,23 @@ function initializeEnquiryForm() {
 
 
             /* ---------------------------------------------
-               SEND POST
+               SEND
             --------------------------------------------- */
+
+            console.log(
+                "Sending enquiry to Apps Script..."
+            );
+
 
             try {
 
                 postForm.submit();
 
-                console.log(
-                    "ITSA enquiry POST sent."
-                );
-
             }
+
             catch (error) {
 
                 console.error(
-                    "ITSA POST error:",
                     error
                 );
 
@@ -1178,87 +859,46 @@ function initializeEnquiryForm() {
 
 
                 showSubmissionError(
-                    "We could not submit your enquiry. Please try again."
+                    "Unable to submit enquiry."
                 );
-
 
                 return;
 
             }
 
 
-            /* ---------------------------------------------
-               WAIT FOR REAL ID
-            --------------------------------------------- */
+            /*
+             * DO NOT show success here.
+             *
+             * We wait for the real Apps Script
+             * postMessage containing the real ID.
+             */
 
-            const enquiryId =
-                await waitForEnquiryId(
-                    clientToken
-                );
+            setTimeout(
+                function () {
 
+                    if (
+                        postForm &&
+                        postForm.parentNode
+                    ) {
 
-            /* ---------------------------------------------
-               CLEANUP
-            --------------------------------------------- */
+                        postForm.remove();
 
-            if (
-                postForm &&
-                postForm.parentNode
-            ) {
-
-                postForm.remove();
-
-            }
+                    }
 
 
-            if (
-                iframe &&
-                iframe.parentNode
-            ) {
+                    if (
+                        iframe &&
+                        iframe.parentNode
+                    ) {
 
-                iframe.remove();
+                        iframe.remove();
 
-            }
+                    }
 
-
-            /* ---------------------------------------------
-               STOP LOADING
-            --------------------------------------------- */
-
-            setLoading(
-                false
+                },
+                15000
             );
-
-
-            /* ---------------------------------------------
-               DISPLAY RESULT
-            --------------------------------------------- */
-
-            if (enquiryId) {
-
-                console.log(
-                    "REAL ENQUIRY ID:",
-                    enquiryId
-                );
-
-
-                showSubmissionSuccess(
-                    enquiryId
-                );
-
-            }
-            else {
-
-                console.warn(
-                    "ID lookup timed out."
-                );
-
-
-                showSubmissionSuccess(
-                    null
-                );
-
-            }
 
         }
     );
@@ -1268,7 +908,9 @@ function initializeEnquiryForm() {
        NEW ENQUIRY
     ===================================================== */
 
-    if (newEnquiryButton) {
+    if (
+        newEnquiryButton
+    ) {
 
         newEnquiryButton.addEventListener(
             "click",
@@ -1277,7 +919,9 @@ function initializeEnquiryForm() {
                 enquiryForm.reset();
 
 
-                if (characterCounter) {
+                if (
+                    characterCounter
+                ) {
 
                     characterCounter.textContent =
                         "0 / 1000";
@@ -1288,7 +932,9 @@ function initializeEnquiryForm() {
                 clearErrors();
 
 
-                if (successScreen) {
+                if (
+                    successScreen
+                ) {
 
                     successScreen.classList.remove(
                         "active"
@@ -1322,10 +968,6 @@ function initializeEnquiryForm() {
     }
 
 
-    /* =====================================================
-       READY
-    ===================================================== */
-
     console.log(
         "ITSkillsAcademy Enquiry Form READY"
     );
@@ -1334,7 +976,7 @@ function initializeEnquiryForm() {
 
 
 /* =========================================================
-   START APPLICATION
+   START
 ========================================================= */
 
 if (
