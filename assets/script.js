@@ -500,7 +500,7 @@ enquiryForm.addEventListener(
 
             const response =
                 await fetch(
-                    GOOGLE_SCRIPT_URL,
+                    https://script.google.com/macros/s/AKfycbyRkNKdCwCnsB5OS0M_ihFLY06dPcJW4AMZivroCPruaghc-OLJRgGR3jKxB-hO1GY/exec,
                     {
                         method: "POST",
                         body: formData
