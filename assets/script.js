@@ -475,170 +475,172 @@ enquiryForm.addEventListener(
 
 
         /* ---------------------------------------------
-           STEP 2 — Check API URL
-           
-           IMPORTANT:
-           We check for the PLACEHOLDER,
-           NOT the actual URL.
-        ---------------------------------------------- */
+   STEP 2 — Check API URL
+------------------------------------------------ */
 
-        if (
-            !GOOGLE_SCRIPT_URL ||
-            GOOGLE_SCRIPT_URL.includes(
-                "https://script.google.com/macros/s/AKfycbyRkNKdCwCnsB5OS0M_ihFLY06dPcJW4AMZivroCPruaghc-OLJRgGR3jKxB-hO1GY/exec"
-            )
-        ) {
+if (
+    !GOOGLE_SCRIPT_URL ||
+    GOOGLE_SCRIPT_URL.includes("YOUR_GOOGLE_SCRIPT_URL")
+) {
+    showSubmissionError(
+        "The enquiry system is not configured yet. Please contact the administrator."
+    );
 
-            showSubmissionError(
-                "The enquiry system is not configured yet. Please contact the administrator."
-            );
-
-            return;
-
-        }
-
-
-        /* ---------------------------------------------
-           STEP 3 — Loading state
-        ---------------------------------------------- */
-
-        setLoading(true);
-
-
-        try {
-
-
-            /* -----------------------------------------
-               STEP 4 — Create FormData
-            ------------------------------------------ */
-
-            const formData =
-                new FormData(
-                    enquiryForm
-                );
-
-
-            /* -----------------------------------------
-               STEP 5 — Set source
-               
-               This ensures the Google Sheet receives:
-               Facebook
-            ------------------------------------------ */
-
-            formData.set(
-                "source",
-                "Facebook"
-            );
-
-
-            /* -----------------------------------------
-               STEP 6 — Send data to Apps Script
-               
-               IMPORTANT:
-               Use GOOGLE_SCRIPT_URL here.
-               Do NOT put the URL directly into fetch().
-            ------------------------------------------ */
-            const postData = new
-			URLSearchParams();
-			
-			for (const [key, value] of
-			formData.entries()) {
-			postData.append(key, value);
-			}
-			const iframe = document.createElement("iframe");
-
-iframe.name = "googleScriptFrame";
-iframe.style.display = "none";
-
-document.body.appendChild(iframe);
-
-const nativeForm = document.createElement("form");
-
-nativeForm.method = "POST";
-nativeForm.action = GOOGLE_SCRIPT_URL;
-nativeForm.target = "googleScriptFrame";
-nativeForm.style.display = "none";
-
-for (const [key, value] of formData.entries()) {
-    const input = document.createElement("input");
-
-    input.type = "hidden";
-    input.name = key;
-    input.value = value;
-
-    nativeForm.appendChild(input);
+    return;
 }
 
-document.body.appendChild(nativeForm);
 
-nativeForm.submit();
+/* ---------------------------------------------
+   STEP 3 — Loading state
+------------------------------------------------ */
 
-setTimeout(() => {
-
-    submitButton.disabled = false;
-    submitButton.textContent = "SEND ENQUIRY";
-
-    alert("Your enquiry has been submitted successfully!");
-
-    enquiryForm.reset();
-
-    nativeForm.remove();
-    iframe.remove();
-
-}, 5000);		
-			        
-            /* -----------------------------------------
-               STEP 7 — Read server response
-            ------------------------------------------ */
-
-            const result =
-                await response.json();
+setLoading(true);
 
 
-            /* -----------------------------------------
-               STEP 8 — Handle successful response
-            ------------------------------------------ */
+try {
 
-            if (
-                result &&
-                result.success
-            ) {
+    /* -----------------------------------------
+       STEP 4 — Create FormData
+    ------------------------------------------ */
 
-                showSuccess(
-                    result.enquiryId
-                );
-
-            }
-            else {
-
-                throw new Error(
-                    result.error ||
-                    "Unable to submit enquiry."
-                );
-
-            }
+    const formData =
+        new FormData(enquiryForm);
 
 
-        }
-        catch (error) {
+    /* -----------------------------------------
+       STEP 5 — Set source
+    ------------------------------------------ */
+
+    formData.set(
+        "source",
+        "Facebook"
+    );
 
 
-            /* -----------------------------------------
-               STEP 9 — Handle submission error
-            ------------------------------------------ */
+    /* -----------------------------------------
+       STEP 6 — Native POST to Apps Script
+       
+       We use a hidden iframe to avoid the
+       GitHub Pages → Apps Script fetch/CORS
+       problem.
+    ------------------------------------------ */
 
-            console.error(
-                "Submission error:",
-                error
-            );
+    const iframe =
+        document.createElement("iframe");
+
+    iframe.name =
+        "googleScriptFrame";
+
+    iframe.style.display =
+        "none";
+
+    document.body.appendChild(iframe);
 
 
-            showSubmissionError(
-                "We could not submit your enquiry. Please check your internet connection and try again."
-            );
+    const nativeForm =
+        document.createElement("form");
 
-        }
-        finally {
+    nativeForm.method =
+        "POST";
+
+    nativeForm.action =
+        GOOGLE_SCRIPT_URL;
+
+    nativeForm.target =
+        "googleScriptFrame";
+
+    nativeForm.style.display =
+        "none";
+
+
+    /* -----------------------------------------
+       Copy form fields
+    ------------------------------------------ */
+
+    for (
+        const [key, value]
+        of formData.entries()
+    ) {
+
+        const input =
+            document.createElement("input");
+
+        input.type =
+            "hidden";
+
+        input.name =
+            key;
+
+        input.value =
+            value;
+
+        nativeForm.appendChild(input);
+    }
+
+
+    document.body.appendChild(
+        nativeForm
+    );
+
+
+    /* -----------------------------------------
+       Submit to Apps Script
+    ------------------------------------------ */
+
+    nativeForm.submit();
+
+
+    /* -----------------------------------------
+       STEP 7 — Wait for Apps Script
+       
+       Because iframe submission does not allow
+       us to read the cross-origin JSON response,
+       we don't use response.json().
+    ------------------------------------------ */
+
+    setTimeout(
+        function () {
+
+            setLoading(false);
+
+
+            /* ---------------------------------
+               Show submission success
+            ---------------------------------- */
+
+            showSubmissionSuccess();
+
+
+            /* ---------------------------------
+               Cleanup
+            ---------------------------------- */
+
+            nativeForm.remove();
+
+            iframe.remove();
+
+        },
+        5000
+    );
+
+
+}
+catch (error) {
+
+    console.error(
+        "Submission error:",
+        error
+    );
+
+
+    setLoading(false);
+
+
+    showSubmissionError(
+        "We could not submit your enquiry. Please try again."
+    );
+
+}
 
 
             /* -----------------------------------------
