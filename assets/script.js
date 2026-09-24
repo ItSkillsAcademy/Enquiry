@@ -20,7 +20,7 @@ javascript
 ===================================================== */
 
 const GOOGLE_SCRIPT_URL =
-    "PASTE_YOUR_GOOGLE_APPS_SCRIPT_EXEC_URL_HERE";
+    "https://script.google.com/macros/s/AKfycbyRkNKdCwCnsB5OS0M_ihFLY06dPcJW4AMZivroCPruaghc-OLJRgGR3jKxB-hO1GY/exec";
 
 
 /* =====================================================
