@@ -27,7 +27,7 @@
    ========================================================= */
 
 const GOOGLE_SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbyRkNKdCwCnsB5OS0M_ihFLY06dPcJW4AMZivroCPruaghc-OLJRg3jKxB-hO1GY/exec";
+    "https://script.google.com/macros/s/AKfycbybKoFWU8Ua0cLzvznTu0EFzSA22yuyezia4TENEHNqYx_QM9HxbVfGQnTV63BKhrw/exec";
 
 
 /* =========================================================
