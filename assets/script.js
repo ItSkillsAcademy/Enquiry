@@ -1,4 +1,4 @@
-```javascript
+++++```javascript
 /* =====================================================
    ITSkillsAcademy Enquiry Form
    Frontend Controller
@@ -539,6 +539,14 @@ enquiryForm.addEventListener(
                Do NOT put the URL directly into fetch().
             ------------------------------------------ */
 
+           const postData = new
+			URLSearchParams();
+			
+			for (const [key, value] of
+			formData.entries()) {
+			postData.append(key, value);
+			}
+           
             const response =
                 await fetch(
                     GOOGLE_SCRIPT_URL,
