@@ -443,188 +443,146 @@ document
    FORM SUBMISSION
 ===================================================== */
 
-enquiryForm.addEventListener(
-    "submit",
-    async function (event) {
+enquiryForm.addEventListener("submit", function (event) {
 
-        event.preventDefault();
+    event.preventDefault();
 
+    console.log("=== ITSA ENQUIRY TEST START ===");
 
-        /* ---------------------------------------------
-           STEP 1 — Validate form
-        ---------------------------------------------- */
+    if (!validateForm()) {
+        console.log("FORM VALIDATION FAILED");
+        return;
+    }
 
-        if (!validateForm()) {
+    console.log("GOOGLE_SCRIPT_URL:", GOOGLE_SCRIPT_URL);
 
-            const firstError =
-                document.querySelector(
-                    ".input-error"
-                );
+    if (
+        !GOOGLE_SCRIPT_URL ||
+        GOOGLE_SCRIPT_URL.includes("YOUR_GOOGLE_SCRIPT_URL")
+    ) {
+        console.error("GOOGLE SCRIPT URL IS NOT CONFIGURED");
+        showSubmissionError(
+            "The enquiry system is not configured yet."
+        );
+        return;
+    }
 
+    setLoading(true);
 
-            if (firstError) {
+    const formData = new FormData(enquiryForm);
 
-                firstError.focus();
+    formData.set("source", "Facebook");
 
-            }
+    console.log("FORM DATA:");
 
+    for (const [key, value] of formData.entries()) {
+        console.log(key, "=", value);
+    }
 
-            return;
+    /*
+    ============================================================
+    CREATE TEMPORARY HIDDEN IFRAME
+    ============================================================
+    */
 
-        }
-
-
-        /* ---------------------------------------------
-   STEP 2 — Check API URL
------------------------------------------------- */
-
-if (
-    !GOOGLE_SCRIPT_URL ||
-    GOOGLE_SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbyRkNKdCwCnsB5OS0M_ihFLY06dPcJW4AMZivroCPruaghc-OLJRgGR3jKxB-hO1GY/exec")
-) {
-    showSubmissionError(
-        "The enquiry system is not configured yet. Please contact the administrator."
-    );
-
-    return;
-}
-
-
-/* ---------------------------------------------
-   STEP 3 — Loading state
------------------------------------------------- */
-
-setLoading(true);
-
-
-try {
-
-    /* -----------------------------------------
-       STEP 4 — Create FormData
-    ------------------------------------------ */
-
-    const formData =
-        new FormData(enquiryForm);
-
-
-    /* -----------------------------------------
-       STEP 5 — Set source
-    ------------------------------------------ */
-
-    formData.set(
-        "source",
-        "Facebook"
-    );
-
-
-    /* -----------------------------------------
-       STEP 6 — Native POST to Apps Script
-       
-       We use a hidden iframe to avoid the
-       GitHub Pages → Apps Script fetch/CORS
-       problem.
-    ------------------------------------------ */
+    const iframeName =
+        "itsaEnquiryFrame_" + Date.now();
 
     const iframe =
         document.createElement("iframe");
 
-    iframe.name =
-        "googleScriptFrame";
-
-    iframe.style.display =
-        "none";
+    iframe.name = iframeName;
+    iframe.style.display = "none";
 
     document.body.appendChild(iframe);
 
+    /*
+    ============================================================
+    CREATE NATIVE HTML FORM
+    ============================================================
+    */
 
     const nativeForm =
         document.createElement("form");
 
-    nativeForm.method =
-        "POST";
+    nativeForm.method = "POST";
 
     nativeForm.action =
         GOOGLE_SCRIPT_URL;
 
     nativeForm.target =
-        "googleScriptFrame";
+        iframeName;
 
-    nativeForm.style.display =
-        "none";
+    nativeForm.style.display = "none";
 
+    /*
+    ============================================================
+    COPY FORM DATA
+    ============================================================
+    */
 
-    /* -----------------------------------------
-       Copy form fields
-    ------------------------------------------ */
-
-    for (
-        const [key, value]
-        of formData.entries()
-    ) {
+    for (const [key, value] of formData.entries()) {
 
         const input =
             document.createElement("input");
 
-        input.type =
-            "hidden";
+        input.type = "hidden";
 
-        input.name =
-            key;
+        input.name = key;
 
-        input.value =
-            value;
+        input.value = value;
 
         nativeForm.appendChild(input);
     }
 
+    document.body.appendChild(nativeForm);
 
-    document.body.appendChild(
-        nativeForm
+    console.log(
+        "POST TARGET:",
+        nativeForm.action
     );
 
+    console.log(
+        "SUBMITTING NATIVE FORM..."
+    );
 
-    /* -----------------------------------------
-       Submit to Apps Script
-    ------------------------------------------ */
+    /*
+    ============================================================
+    SUBMIT
+    ============================================================
+    */
 
     nativeForm.submit();
 
-
-    /* -----------------------------------------
-       STEP 7 — Wait for Apps Script
-       
-       Because iframe submission does not allow
-       us to read the cross-origin JSON response,
-       we don't use response.json().
-    ------------------------------------------ */
-
-    setTimeout(
-        function () {
-
-            setLoading(false);
-
-
-            /* ---------------------------------
-               Show submission success
-            ---------------------------------- */
-
-            showSubmissionSuccess();
-
-
-            /* ---------------------------------
-               Cleanup
-            ---------------------------------- */
-
-            nativeForm.remove();
-
-            iframe.remove();
-
-        },
-        5000
+    console.log(
+        "NATIVE FORM SUBMIT CALLED"
     );
 
+    /*
+    ============================================================
+    WAIT FOR GOOGLE APPS SCRIPT
+    ============================================================
+    */
 
-}
+    setTimeout(function () {
+
+        console.log(
+            "5 SECOND CHECK COMPLETED"
+        );
+
+        setLoading(false);
+
+        showSubmissionSuccess();
+
+        nativeForm.remove();
+
+        iframe.remove();
+
+    }, 5000);
+
+});
+
+
 catch (error) {
 
     console.error(
