@@ -1,6 +1,8 @@
+```javascript
 /* =====================================================
    ITSkillsAcademy Enquiry Form
    Frontend Controller
+   Phase 2
 ===================================================== */
 
 
@@ -9,13 +11,16 @@
 =====================================================
 
    IMPORTANT:
-   Replace the URL below with your deployed
+   Replace ONLY the URL below with your deployed
    Google Apps Script /exec URL.
+
+   Example:
+  
 
 ===================================================== */
 
 const GOOGLE_SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbyRkNKdCwCnsB5OS0M_ihFLY06dPcJW4AMZivroCPruaghc-OLJRgGR3jKxB-hO1GY/exec";
+    "PASTE_YOUR_GOOGLE_APPS_SCRIPT_EXEC_URL_HERE";
 
 
 /* =====================================================
@@ -54,7 +59,7 @@ const characterCounter =
    CHARACTER COUNTER
 ===================================================== */
 
-if (enquiryMessage) {
+if (enquiryMessage && characterCounter) {
 
     enquiryMessage.addEventListener(
         "input",
@@ -106,6 +111,10 @@ function validateForm() {
 
     let valid = true;
 
+
+    /* -----------------------------------------------
+       Clear previous errors
+    ------------------------------------------------ */
 
     clearErrors();
 
@@ -179,7 +188,7 @@ function validateForm() {
 
 
     /* -----------------------------------------------
-       Mobile
+       Mobile Number
     ------------------------------------------------ */
 
     const mobile =
@@ -218,7 +227,8 @@ function validateForm() {
 
 
     /* -----------------------------------------------
-       Email
+       Email Address
+       Optional field
     ------------------------------------------------ */
 
     const email =
@@ -249,7 +259,7 @@ function validateForm() {
 
 
     /* -----------------------------------------------
-       Class
+       Class Enquiry For
     ------------------------------------------------ */
 
     const classEnquiryFor =
@@ -282,10 +292,19 @@ function validateForm() {
 
     if (!trainingType) {
 
-        document
-            .getElementById("trainingTypeError")
-            .textContent =
-            "Please select a training type.";
+        const trainingError =
+            document.getElementById(
+                "trainingTypeError"
+            );
+
+
+        if (trainingError) {
+
+            trainingError.textContent =
+                "Please select a training type.";
+
+        }
+
 
         valid = false;
 
@@ -298,7 +317,7 @@ function validateForm() {
 
 
 /* =====================================================
-   SHOW ERROR
+   SHOW FIELD ERROR
 ===================================================== */
 
 function showError(
@@ -307,7 +326,9 @@ function showError(
 ) {
 
     const field =
-        document.getElementById(fieldId);
+        document.getElementById(
+            fieldId
+        );
 
 
     const error =
@@ -336,7 +357,7 @@ function showError(
 
 
 /* =====================================================
-   CLEAR ERRORS
+   CLEAR ALL ERRORS
 ===================================================== */
 
 function clearErrors() {
@@ -372,7 +393,7 @@ function clearErrors() {
 
 
 /* =====================================================
-   REMOVE ERROR WHEN USER STARTS CORRECTING
+   REMOVE ERROR WHEN USER CORRECTS FIELD
 ===================================================== */
 
 document
@@ -381,6 +402,11 @@ document
     )
     .forEach(
         element => {
+
+
+            /* -----------------------------------------
+               Input event
+            ------------------------------------------ */
 
             element.addEventListener(
                 "input",
@@ -393,6 +419,10 @@ document
                 }
             );
 
+
+            /* -----------------------------------------
+               Change event
+            ------------------------------------------ */
 
             element.addEventListener(
                 "change",
@@ -421,7 +451,7 @@ enquiryForm.addEventListener(
 
 
         /* ---------------------------------------------
-           Validate
+           STEP 1 — Validate form
         ---------------------------------------------- */
 
         if (!validateForm()) {
@@ -445,7 +475,11 @@ enquiryForm.addEventListener(
 
 
         /* ---------------------------------------------
-           Check API URL
+           STEP 2 — Check API URL
+           
+           IMPORTANT:
+           We check for the PLACEHOLDER,
+           NOT the actual URL.
         ---------------------------------------------- */
 
         if (
@@ -465,7 +499,7 @@ enquiryForm.addEventListener(
 
 
         /* ---------------------------------------------
-           Loading State
+           STEP 3 — Loading state
         ---------------------------------------------- */
 
         setLoading(true);
@@ -475,7 +509,7 @@ enquiryForm.addEventListener(
 
 
             /* -----------------------------------------
-               Create Form Data
+               STEP 4 — Create FormData
             ------------------------------------------ */
 
             const formData =
@@ -484,9 +518,12 @@ enquiryForm.addEventListener(
                 );
 
 
-            /*
-             * Make sure Source is Facebook.
-             */
+            /* -----------------------------------------
+               STEP 5 — Set source
+               
+               This ensures the Google Sheet receives:
+               Facebook
+            ------------------------------------------ */
 
             formData.set(
                 "source",
@@ -495,12 +532,16 @@ enquiryForm.addEventListener(
 
 
             /* -----------------------------------------
-               Send to Apps Script
+               STEP 6 — Send data to Apps Script
+               
+               IMPORTANT:
+               Use GOOGLE_SCRIPT_URL here.
+               Do NOT put the URL directly into fetch().
             ------------------------------------------ */
 
             const response =
                 await fetch(
-                    https://script.google.com/macros/s/AKfycbyRkNKdCwCnsB5OS0M_ihFLY06dPcJW4AMZivroCPruaghc-OLJRgGR3jKxB-hO1GY/exec,
+                    GOOGLE_SCRIPT_URL,
                     {
                         method: "POST",
                         body: formData
@@ -509,7 +550,7 @@ enquiryForm.addEventListener(
 
 
             /* -----------------------------------------
-               Read response
+               STEP 7 — Read server response
             ------------------------------------------ */
 
             const result =
@@ -517,7 +558,7 @@ enquiryForm.addEventListener(
 
 
             /* -----------------------------------------
-               Handle result
+               STEP 8 — Handle successful response
             ------------------------------------------ */
 
             if (
@@ -543,6 +584,11 @@ enquiryForm.addEventListener(
         }
         catch (error) {
 
+
+            /* -----------------------------------------
+               STEP 9 — Handle submission error
+            ------------------------------------------ */
+
             console.error(
                 "Submission error:",
                 error
@@ -555,6 +601,11 @@ enquiryForm.addEventListener(
 
         }
         finally {
+
+
+            /* -----------------------------------------
+               STEP 10 — Stop loading state
+            ------------------------------------------ */
 
             setLoading(false);
 
@@ -601,45 +652,49 @@ function setLoading(
 
 
 /* =====================================================
-   SUCCESS
+   SHOW SUCCESS SCREEN
 ===================================================== */
 
 function showSuccess(
     enquiryId
 ) {
 
-    /*
-     * Display Enquiry ID
-     */
+
+    /* -----------------------------------------------
+       Display Enquiry ID
+    ------------------------------------------------ */
 
     successEnquiryId.textContent =
         enquiryId;
 
 
-    /*
-     * Hide form
-     */
+    /* -----------------------------------------------
+       Hide form
+    ------------------------------------------------ */
 
     enquiryForm.style.display =
         "none";
 
 
-    /*
-     * Show success screen
-     */
+    /* -----------------------------------------------
+       Show success screen
+    ------------------------------------------------ */
 
     successScreen.classList.add(
         "active"
     );
 
 
-    /*
-     * Scroll to success screen
-     */
+    /* -----------------------------------------------
+       Scroll to success message
+    ------------------------------------------------ */
 
     successScreen.scrollIntoView({
+
         behavior: "smooth",
+
         block: "center"
+
     });
 
 }
@@ -654,11 +709,11 @@ function showSubmissionError(
 ) {
 
     /*
-     * Use a normal alert for Phase 2.
+     * Phase 2 uses a browser alert.
      *
-     * We can replace this with a beautiful
-     * inline notification in the next polishing
-     * phase.
+     * We can replace this later with a beautiful
+     * inline notification without changing the
+     * backend.
      */
 
     alert(
@@ -676,52 +731,60 @@ newEnquiryButton.addEventListener(
     "click",
     function () {
 
-        /*
-         * Reset form
-         */
+
+        /* ---------------------------------------------
+           Reset form
+        ---------------------------------------------- */
 
         enquiryForm.reset();
 
 
-        /*
-         * Reset character counter
-         */
+        /* ---------------------------------------------
+           Reset character counter
+        ---------------------------------------------- */
 
-        characterCounter.textContent =
-            "0 / 1000";
+        if (characterCounter) {
+
+            characterCounter.textContent =
+                "0 / 1000";
+
+        }
 
 
-        /*
-         * Clear errors
-         */
+        /* ---------------------------------------------
+           Clear validation errors
+        ---------------------------------------------- */
 
         clearErrors();
 
 
-        /*
-         * Hide success
-         */
+        /* ---------------------------------------------
+           Hide success screen
+        ---------------------------------------------- */
 
         successScreen.classList.remove(
             "active"
         );
 
 
-        /*
-         * Show form
-         */
+        /* ---------------------------------------------
+           Show form again
+        ---------------------------------------------- */
 
         enquiryForm.style.display =
             "";
 
 
-        /*
-         * Scroll to top
-         */
+        /* ---------------------------------------------
+           Scroll to top
+        ---------------------------------------------- */
 
         window.scrollTo({
+
             top: 0,
+
             behavior: "smooth"
+
         });
 
     }
