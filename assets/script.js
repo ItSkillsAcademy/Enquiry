@@ -1,78 +1,70 @@
 /* =========================================================
    ITSkillsAcademy Enquiry Form
-   FINAL FRONTEND CONTROLLER
+   DIRECT SUBMISSION CONTROLLER
    ========================================================= */
+
+/*
+ * IMPORTANT:
+ * This version intentionally does NOT use:
+ * - fetch()
+ * - CORS
+ * - JSONP
+ * - hidden iframes
+ * - postMessage()
+ * - polling
+ * - timeout-based success detection
+ *
+ * The browser submits the form directly to the Apps Script
+ * Web App as a normal HTML POST.
+ *
+ * Apps Script saves the enquiry and returns the Thank You
+ * page containing the REAL Enquiry ID.
+ */
 
 
 /* =========================================================
    GOOGLE APPS SCRIPT URL
-========================================================= */
+   ========================================================= */
 
 const GOOGLE_SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbyRkNKdCwCnsB5OS0M_ihFLY06dPcJW4AMZivroCPruaghc-OLJRgGR3jKxB-hO1GY/exec";
+    "https://script.google.com/macros/s/AKfycbyRkNKdCwCnsB5OS0M_ihFLY06dPcJW4AMZivroCPruaghc-OLJRg3jKxB-hO1GY/exec";
 
 
 /* =========================================================
-   APPLICATION
-========================================================= */
+   APPLICATION INITIALIZATION
+   ========================================================= */
 
 function initializeEnquiryForm() {
 
-
     /* =====================================================
-       DOM
-    ===================================================== */
+       DOM ELEMENTS
+       ===================================================== */
 
     const enquiryForm =
-        document.getElementById(
-            "enquiryForm"
-        );
+        document.getElementById("enquiryForm");
 
     const submitButton =
-        document.getElementById(
-            "submitButton"
-        );
+        document.getElementById("submitButton");
 
     const buttonText =
-        document.getElementById(
-            "buttonText"
-        );
+        document.getElementById("buttonText");
 
     const loadingSpinner =
-        document.getElementById(
-            "loadingSpinner"
-        );
-
-    const successScreen =
-        document.getElementById(
-            "successScreen"
-        );
-
-    const successEnquiryId =
-        document.getElementById(
-            "successEnquiryId"
-        );
-
-    const newEnquiryButton =
-        document.getElementById(
-            "newEnquiryButton"
-        );
+        document.getElementById("loadingSpinner");
 
     const enquiryMessage =
-        document.getElementById(
-            "enquiryMessage"
-        );
+        document.getElementById("enquiryMessage");
 
     const characterCounter =
-        document.getElementById(
-            "characterCounter"
-        );
+        document.getElementById("characterCounter");
 
     const mobileInput =
-        document.getElementById(
-            "mobile"
-        );
+        document.getElementById("mobile");
 
+
+    /* =====================================================
+       FORM CHECK
+       ===================================================== */
 
     if (!enquiryForm) {
 
@@ -85,219 +77,72 @@ function initializeEnquiryForm() {
 
 
     /* =====================================================
-       CHARACTER COUNTER
-    ===================================================== */
+       LOADING STATE
+       ===================================================== */
 
-    if (
-        enquiryMessage &&
-        characterCounter
-    ) {
+    function setLoading(loading) {
 
-        enquiryMessage.addEventListener(
-            "input",
-            function () {
+        if (submitButton) {
 
-                characterCounter.textContent =
-                    this.value.length +
-                    " / 1000";
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       MOBILE INPUT
-    ===================================================== */
-
-    if (mobileInput) {
-
-        mobileInput.addEventListener(
-            "input",
-            function () {
-
-                this.value =
-                    this.value
-                        .replace(
-                            /\D/g,
-                            ""
-                        )
-                        .slice(
-                            0,
-                            10
-                        );
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       VALIDATION
-    ===================================================== */
-
-    function validateForm() {
-
-        let valid = true;
-
-        clearErrors();
-
-
-        const studentName =
-            document.getElementById(
-                "studentName"
-            );
-
-        if (
-            !studentName ||
-            !studentName.value.trim()
-        ) {
-
-            showError(
-                "studentName",
-                "Please enter student name."
-            );
-
-            valid = false;
+            submitButton.disabled =
+                loading;
         }
 
 
-        const guardianName =
-            document.getElementById(
-                "guardianName"
-            );
+        if (loading) {
 
-        if (
-            !guardianName ||
-            !guardianName.value.trim()
-        ) {
+            if (submitButton) {
 
-            showError(
-                "guardianName",
-                "Please enter guardian name."
-            );
-
-            valid = false;
-        }
-
-
-        const guardianType =
-            document.getElementById(
-                "guardianType"
-            );
-
-        if (
-            !guardianType ||
-            !guardianType.value
-        ) {
-
-            showError(
-                "guardianType",
-                "Please select guardian type."
-            );
-
-            valid = false;
-        }
-
-
-        const mobile =
-            document.getElementById(
-                "mobile"
-            );
-
-
-        if (
-            !mobile ||
-            !/^[6-9]\d{9}$/.test(
-                mobile.value.trim()
-            )
-        ) {
-
-            showError(
-                "mobile",
-                "Enter a valid 10-digit mobile number."
-            );
-
-            valid = false;
-        }
-
-
-        const email =
-            document.getElementById(
-                "email"
-            );
-
-
-        if (
-            email &&
-            email.value.trim() &&
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-                email.value.trim()
-            )
-        ) {
-
-            showError(
-                "email",
-                "Please enter a valid email address."
-            );
-
-            valid = false;
-        }
-
-
-        const classEnquiryFor =
-            document.getElementById(
-                "classEnquiryFor"
-            );
-
-
-        if (
-            !classEnquiryFor ||
-            !classEnquiryFor.value
-        ) {
-
-            showError(
-                "classEnquiryFor",
-                "Please select the class."
-            );
-
-            valid = false;
-        }
-
-
-        const trainingType =
-            document.querySelector(
-                'input[name="trainingType"]:checked'
-            );
-
-
-        if (!trainingType) {
-
-            const error =
-                document.getElementById(
-                    "trainingTypeError"
+                submitButton.classList.add(
+                    "loading"
                 );
-
-            if (error) {
-
-                error.textContent =
-                    "Please select a training type.";
-
             }
 
-            valid = false;
+
+            if (buttonText) {
+
+                buttonText.textContent =
+                    "SUBMITTING...";
+            }
+
+
+            if (loadingSpinner) {
+
+                loadingSpinner.style.display =
+                    "inline-block";
+            }
+
         }
 
+        else {
 
-        return valid;
+            if (submitButton) {
+
+                submitButton.classList.remove(
+                    "loading"
+                );
+            }
+
+
+            if (buttonText) {
+
+                buttonText.textContent =
+                    "SEND ENQUIRY";
+            }
+
+
+            if (loadingSpinner) {
+
+                loadingSpinner.style.display =
+                    "";
+            }
+        }
     }
 
 
     /* =====================================================
-       SHOW ERROR
-    ===================================================== */
+       SHOW FIELD ERROR
+       ===================================================== */
 
     function showError(
         fieldId,
@@ -309,10 +154,10 @@ function initializeEnquiryForm() {
                 fieldId
             );
 
+
         const error =
             document.getElementById(
-                fieldId +
-                "Error"
+                fieldId + "Error"
             );
 
 
@@ -321,7 +166,6 @@ function initializeEnquiryForm() {
             field.classList.add(
                 "input-error"
             );
-
         }
 
 
@@ -329,15 +173,13 @@ function initializeEnquiryForm() {
 
             error.textContent =
                 message;
-
         }
-
     }
 
 
     /* =====================================================
-       CLEAR ERRORS
-    ===================================================== */
+       CLEAR ALL ERRORS
+       ===================================================== */
 
     function clearErrors() {
 
@@ -368,291 +210,328 @@ function initializeEnquiryForm() {
 
                 }
             );
-
     }
 
 
     /* =====================================================
-       LOADING
-    ===================================================== */
+       FORM VALIDATION
+       ===================================================== */
 
-    function setLoading(
-        loading
-    ) {
+    function validateForm() {
 
-        if (submitButton) {
+        let valid = true;
 
-            submitButton.disabled =
-                loading;
 
+        clearErrors();
+
+
+        /* -------------------------------------------------
+           STUDENT NAME
+           ------------------------------------------------- */
+
+        const studentName =
+            document.getElementById(
+                "studentName"
+            );
+
+
+        if (
+            !studentName ||
+            !studentName.value.trim()
+        ) {
+
+            showError(
+                "studentName",
+                "Please enter student name."
+            );
+
+
+            valid = false;
         }
 
 
-        if (loading) {
+        /* -------------------------------------------------
+           GUARDIAN NAME
+           ------------------------------------------------- */
 
-            if (submitButton) {
+        const guardianName =
+            document.getElementById(
+                "guardianName"
+            );
 
-                submitButton.classList.add(
-                    "loading"
+
+        if (
+            !guardianName ||
+            !guardianName.value.trim()
+        ) {
+
+            showError(
+                "guardianName",
+                "Please enter guardian name."
+            );
+
+
+            valid = false;
+        }
+
+
+        /* -------------------------------------------------
+           GUARDIAN TYPE
+           ------------------------------------------------- */
+
+        const guardianType =
+            document.getElementById(
+                "guardianType"
+            );
+
+
+        if (
+            !guardianType ||
+            !guardianType.value
+        ) {
+
+            showError(
+                "guardianType",
+                "Please select guardian type."
+            );
+
+
+            valid = false;
+        }
+
+
+        /* -------------------------------------------------
+           MOBILE
+           ------------------------------------------------- */
+
+        const mobile =
+            document.getElementById(
+                "mobile"
+            );
+
+
+        if (
+            !mobile ||
+            !/^[6-9]\d{9}$/.test(
+                mobile.value.trim()
+            )
+        ) {
+
+            showError(
+                "mobile",
+                "Enter a valid 10-digit mobile number."
+            );
+
+
+            valid = false;
+        }
+
+
+        /* -------------------------------------------------
+           EMAIL
+           ------------------------------------------------- */
+
+        const email =
+            document.getElementById(
+                "email"
+            );
+
+
+        if (
+            email &&
+            email.value.trim() &&
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                email.value.trim()
+            )
+        ) {
+
+            showError(
+                "email",
+                "Please enter a valid email address."
+            );
+
+
+            valid = false;
+        }
+
+
+        /* -------------------------------------------------
+           CLASS
+           ------------------------------------------------- */
+
+        const classEnquiryFor =
+            document.getElementById(
+                "classEnquiryFor"
+            );
+
+
+        if (
+            !classEnquiryFor ||
+            !classEnquiryFor.value
+        ) {
+
+            showError(
+                "classEnquiryFor",
+                "Please select the class."
+            );
+
+
+            valid = false;
+        }
+
+
+        /* -------------------------------------------------
+           TRAINING TYPE
+           ------------------------------------------------- */
+
+        const trainingType =
+            document.querySelector(
+                'input[name="trainingType"]:checked'
+            );
+
+
+        if (!trainingType) {
+
+            const error =
+                document.getElementById(
+                    "trainingTypeError"
                 );
 
+
+            if (error) {
+
+                error.textContent =
+                    "Please select a training type.";
             }
 
 
-            if (buttonText) {
-
-                buttonText.textContent =
-                    "SUBMITTING...";
-
-            }
-
-
-            if (loadingSpinner) {
-
-                loadingSpinner.style.display =
-                    "inline-block";
-
-            }
-
-        }
-        else {
-
-            if (submitButton) {
-
-                submitButton.classList.remove(
-                    "loading"
-                );
-
-            }
-
-
-            if (buttonText) {
-
-                buttonText.textContent =
-                    "SEND ENQUIRY";
-
-            }
-
-
-            if (loadingSpinner) {
-
-                loadingSpinner.style.display =
-                    "";
-
-            }
-
+            valid = false;
         }
 
+
+        return valid;
     }
 
 
     /* =====================================================
-       ESCAPE HTML
-    ===================================================== */
+       ADD / UPDATE HIDDEN FIELD
+       ===================================================== */
 
-    function escapeHtml(
+    function addHiddenField(
+        name,
         value
     ) {
 
-        return String(
-            value
-        )
-            .replace(
-                /&/g,
-                "&amp;"
-            )
-            .replace(
-                /</g,
-                "&lt;"
-            )
-            .replace(
-                />/g,
-                "&gt;"
-            )
-            .replace(
-                /"/g,
-                "&quot;"
-            )
-            .replace(
-                /'/g,
-                "&#039;"
+        let input =
+            enquiryForm.querySelector(
+                'input[type="hidden"][name="' +
+                name +
+                '"]'
             );
 
+
+        if (!input) {
+
+            input =
+                document.createElement(
+                    "input"
+                );
+
+
+            input.type =
+                "hidden";
+
+
+            input.name =
+                name;
+
+
+            enquiryForm.appendChild(
+                input
+            );
+        }
+
+
+        input.value =
+            value === null ||
+            value === undefined
+                ? ""
+                : String(value);
     }
 
 
     /* =====================================================
-       SHOW SUCCESS
-    ===================================================== */
+       CHARACTER COUNTER
+       ===================================================== */
 
-    function showSubmissionSuccess(
-        enquiryId
+    if (
+        enquiryMessage &&
+        characterCounter
     ) {
 
-        if (
-            successEnquiryId
-        ) {
+        characterCounter.textContent =
+            enquiryMessage.value.length +
+            " / 1000";
 
-            if (enquiryId) {
 
-                successEnquiryId.innerHTML =
-                    "Enquiry ID: <strong>" +
-                    escapeHtml(
-                        enquiryId
-                    ) +
-                    "</strong>";
+        enquiryMessage.addEventListener(
+            "input",
+            function () {
+
+                characterCounter.textContent =
+                    this.value.length +
+                    " / 1000";
 
             }
-            else {
+        );
+    }
 
-                successEnquiryId.textContent =
-                    "Your enquiry has been submitted successfully.";
+
+    /* =====================================================
+       MOBILE NUMBER INPUT
+       ===================================================== */
+
+    if (mobileInput) {
+
+        mobileInput.addEventListener(
+            "input",
+            function () {
+
+                this.value =
+                    this.value
+                        .replace(
+                            /\D/g,
+                            ""
+                        )
+                        .slice(
+                            0,
+                            10
+                        );
 
             }
-
-        }
-
-
-        enquiryForm.style.display =
-            "none";
-
-
-        if (successScreen) {
-
-            successScreen.classList.add(
-                "active"
-            );
-
-
-            successScreen.scrollIntoView({
-
-                behavior:
-                    "smooth",
-
-                block:
-                    "center"
-
-            });
-
-        }
-
+        );
     }
-
-
-    /* =====================================================
-       ERROR
-    ===================================================== */
-
-    function showSubmissionError(
-        message
-    ) {
-
-        alert(
-            message
-        );
-
-    }
-
-
-    /* =====================================================
-       RECEIVE RESPONSE FROM APPS SCRIPT
-    ===================================================== */
-
-    function handleAppsScriptMessage(
-        event
-    ) {
-
-        if (
-            !event ||
-            !event.data
-        ) {
-
-            return;
-
-        }
-
-
-        const data =
-            event.data;
-
-
-        if (
-            data.type !==
-            "ITSA_ENQUIRY_RESULT"
-        ) {
-
-            return;
-
-        }
-
-
-        console.log(
-            "Apps Script response received:",
-            data
-        );
-
-
-        if (
-            data.result &&
-            data.result.success &&
-            data.result.enquiryId
-        ) {
-
-            showSubmissionSuccess(
-                data.result.enquiryId
-            );
-
-
-            setLoading(
-                false
-            );
-
-
-            return;
-
-        }
-
-
-        setLoading(
-            false
-        );
-
-
-        showSubmissionError(
-            data.result &&
-            data.result.error
-                ? data.result.error
-                : "Unable to submit enquiry."
-        );
-
-    }
-
-
-    /* =====================================================
-       LISTEN FOR APPS SCRIPT MESSAGE
-    ===================================================== */
-
-    window.addEventListener(
-        "message",
-        handleAppsScriptMessage,
-        false
-    );
 
 
     /* =====================================================
        FORM SUBMISSION
-    ===================================================== */
+       ===================================================== */
 
     enquiryForm.addEventListener(
         "submit",
         function (event) {
 
+            /*
+             * Prevent the default submission temporarily
+             * so validation can run first.
+             */
+
             event.preventDefault();
 
 
-            /* ---------------------------------------------
-               VALIDATION
-            --------------------------------------------- */
+            /* -------------------------------------------------
+               VALIDATE
+               ------------------------------------------------- */
 
             if (
                 !validateForm()
@@ -667,18 +546,16 @@ function initializeEnquiryForm() {
                 if (firstError) {
 
                     firstError.focus();
-
                 }
 
 
                 return;
-
             }
 
 
-            /* ---------------------------------------------
-               CHECK URL
-            --------------------------------------------- */
+            /* -------------------------------------------------
+               CHECK APPS SCRIPT URL
+               ------------------------------------------------- */
 
             if (
                 !GOOGLE_SCRIPT_URL ||
@@ -687,297 +564,124 @@ function initializeEnquiryForm() {
                 )
             ) {
 
-                showSubmissionError(
+                alert(
                     "The enquiry system is not configured correctly."
                 );
 
-                return;
 
+                return;
             }
 
 
-            /* ---------------------------------------------
-               LOADING
-            --------------------------------------------- */
+            /* -------------------------------------------------
+               RETURN URL
+               ------------------------------------------------- */
+
+            let returnUrl =
+                window.location.href
+                    .split("#")[0]
+                    .split("?")[0];
+
+
+            /* -------------------------------------------------
+               SOURCE
+               ------------------------------------------------- */
+
+            addHiddenField(
+                "source",
+                "Facebook"
+            );
+
+
+            /* -------------------------------------------------
+               RETURN URL
+               ------------------------------------------------- */
+
+            addHiddenField(
+                "returnUrl",
+                returnUrl
+            );
+
+
+            /* -------------------------------------------------
+               DIRECT FORM SUBMISSION
+               -------------------------------------------------
+
+               This is the important part.
+
+               The browser sends the form directly to
+               Google Apps Script.
+
+               There is:
+
+               NO fetch()
+               NO CORS
+               NO iframe
+               NO JSONP
+               NO postMessage()
+               NO polling
+
+               Apps Script will save the enquiry and
+               return the Thank You page containing
+               the real Enquiry ID.
+               ------------------------------------------------- */
+
+            enquiryForm.method =
+                "POST";
+
+
+            enquiryForm.action =
+                GOOGLE_SCRIPT_URL;
+
+
+            enquiryForm.target =
+                "_top";
+
+
+            /* -------------------------------------------------
+               SHOW LOADING STATE
+               ------------------------------------------------- */
 
             setLoading(
                 true
             );
 
 
-            /* ---------------------------------------------
-               FORM DATA
-            --------------------------------------------- */
+            /* -------------------------------------------------
+               NATIVE FORM SUBMISSION
+               -------------------------------------------------
 
-            const formData =
-                new FormData(
+               We intentionally call the native HTML
+               form submission method.
+
+               This prevents the submit event from
+               firing again.
+               ------------------------------------------------- */
+
+            HTMLFormElement
+                .prototype
+                .submit
+                .call(
                     enquiryForm
                 );
-
-
-            formData.set(
-                "source",
-                "Facebook"
-            );
-
-
-            /* ---------------------------------------------
-               CREATE IFRAME
-            --------------------------------------------- */
-
-            const frameName =
-                "itsa_enquiry_frame_" +
-                Date.now();
-
-
-            const iframe =
-                document.createElement(
-                    "iframe"
-                );
-
-
-            iframe.name =
-                frameName;
-
-
-            iframe.id =
-                frameName;
-
-
-            iframe.style.display =
-                "none";
-
-
-            document.body.appendChild(
-                iframe
-            );
-
-
-            /* ---------------------------------------------
-               CREATE POST FORM
-            --------------------------------------------- */
-
-            const postForm =
-                document.createElement(
-                    "form"
-                );
-
-
-            postForm.method =
-                "POST";
-
-
-            postForm.action =
-                GOOGLE_SCRIPT_URL;
-
-
-            postForm.target =
-                frameName;
-
-
-            postForm.acceptCharset =
-                "UTF-8";
-
-
-            postForm.style.display =
-                "none";
-
-
-            /* ---------------------------------------------
-               ADD FORM FIELDS
-            --------------------------------------------- */
-
-            for (
-                const [
-                    key,
-                    value
-                ]
-                of formData.entries()
-            ) {
-
-                const input =
-                    document.createElement(
-                        "input"
-                    );
-
-
-                input.type =
-                    "hidden";
-
-
-                input.name =
-                    key;
-
-
-                input.value =
-                    value == null
-                        ? ""
-                        : String(value);
-
-
-                postForm.appendChild(
-                    input
-                );
-
-            }
-
-
-            document.body.appendChild(
-                postForm
-            );
-
-
-            /* ---------------------------------------------
-               SEND
-            --------------------------------------------- */
-
-            console.log(
-                "Sending enquiry to Apps Script..."
-            );
-
-
-            try {
-
-                postForm.submit();
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                setLoading(
-                    false
-                );
-
-
-                postForm.remove();
-                iframe.remove();
-
-
-                showSubmissionError(
-                    "Unable to submit enquiry."
-                );
-
-                return;
-
-            }
-
-
-            /*
-             * DO NOT show success here.
-             *
-             * We wait for the real Apps Script
-             * postMessage containing the real ID.
-             */
-
-            setTimeout(
-                function () {
-
-                    if (
-                        postForm &&
-                        postForm.parentNode
-                    ) {
-
-                        postForm.remove();
-
-                    }
-
-
-                    if (
-                        iframe &&
-                        iframe.parentNode
-                    ) {
-
-                        iframe.remove();
-
-                    }
-
-                },
-                15000
-            );
 
         }
     );
 
 
     /* =====================================================
-       NEW ENQUIRY
-    ===================================================== */
-
-    if (
-        newEnquiryButton
-    ) {
-
-        newEnquiryButton.addEventListener(
-            "click",
-            function () {
-
-                enquiryForm.reset();
-
-
-                if (
-                    characterCounter
-                ) {
-
-                    characterCounter.textContent =
-                        "0 / 1000";
-
-                }
-
-
-                clearErrors();
-
-
-                if (
-                    successScreen
-                ) {
-
-                    successScreen.classList.remove(
-                        "active"
-                    );
-
-                }
-
-
-                enquiryForm.style.display =
-                    "";
-
-
-                setLoading(
-                    false
-                );
-
-
-                window.scrollTo({
-
-                    top:
-                        0,
-
-                    behavior:
-                        "smooth"
-
-                });
-
-            }
-        );
-
-    }
-
+       READY MESSAGE
+       ===================================================== */
 
     console.log(
-        "ITSkillsAcademy Enquiry Form READY"
+        "ITSkillsAcademy Enquiry Form READY - DIRECT POST MODE"
     );
-
 }
 
 
 /* =========================================================
-   START
-========================================================= */
+   START APPLICATION
+   ========================================================= */
 
 if (
     document.readyState ===
@@ -990,6 +694,7 @@ if (
     );
 
 }
+
 else {
 
     initializeEnquiryForm();
