@@ -480,7 +480,7 @@ enquiryForm.addEventListener(
 
 if (
     !GOOGLE_SCRIPT_URL ||
-    GOOGLE_SCRIPT_URL.includes("YOUR_GOOGLE_SCRIPT_URL")
+    GOOGLE_SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbyRkNKdCwCnsB5OS0M_ihFLY06dPcJW4AMZivroCPruaghc-OLJRgGR3jKxB-hO1GY/exec")
 ) {
     showSubmissionError(
         "The enquiry system is not configured yet. Please contact the administrator."
