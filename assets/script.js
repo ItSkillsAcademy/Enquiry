@@ -1,62 +1,82 @@
 /* =========================================================
    ITSkillsAcademy Enquiry Form
-   Frontend Controller
-   FINAL CLEAN VERSION
+   FINAL FRONTEND CONTROLLER
    ========================================================= */
 
 
 /* =========================================================
-   GOOGLE APPS SCRIPT WEB APP URL
-   ========================================================= */
+   GOOGLE APPS SCRIPT URL
+========================================================= */
 
 const GOOGLE_SCRIPT_URL =
     "https://script.google.com/macros/s/AKfycbyRkNKdCwCnsB5OS0M_ihFLY06dPcJW4AMZivroCPruaghc-OLJRgGR3jKxB-hO1GY/exec";
 
 
 /* =========================================================
-   APPLICATION INITIALIZATION
-   ========================================================= */
+   INITIALIZE APPLICATION
+========================================================= */
 
 function initializeEnquiryForm() {
 
+
     /* =====================================================
        DOM ELEMENTS
-       ===================================================== */
+    ===================================================== */
 
     const enquiryForm =
-        document.getElementById("enquiryForm");
+        document.getElementById(
+            "enquiryForm"
+        );
 
     const submitButton =
-        document.getElementById("submitButton");
+        document.getElementById(
+            "submitButton"
+        );
 
     const buttonText =
-        document.getElementById("buttonText");
+        document.getElementById(
+            "buttonText"
+        );
 
     const loadingSpinner =
-        document.getElementById("loadingSpinner");
+        document.getElementById(
+            "loadingSpinner"
+        );
 
     const successScreen =
-        document.getElementById("successScreen");
+        document.getElementById(
+            "successScreen"
+        );
 
     const successEnquiryId =
-        document.getElementById("successEnquiryId");
+        document.getElementById(
+            "successEnquiryId"
+        );
 
     const newEnquiryButton =
-        document.getElementById("newEnquiryButton");
+        document.getElementById(
+            "newEnquiryButton"
+        );
 
     const enquiryMessage =
-        document.getElementById("enquiryMessage");
+        document.getElementById(
+            "enquiryMessage"
+        );
 
     const characterCounter =
-        document.getElementById("characterCounter");
+        document.getElementById(
+            "characterCounter"
+        );
 
     const mobileInput =
-        document.getElementById("mobile");
+        document.getElementById(
+            "mobile"
+        );
 
 
     /* =====================================================
-       CHECK FORM
-       ===================================================== */
+       FORM EXISTENCE CHECK
+    ===================================================== */
 
     if (!enquiryForm) {
 
@@ -65,12 +85,13 @@ function initializeEnquiryForm() {
         );
 
         return;
+
     }
 
 
     /* =====================================================
        CHARACTER COUNTER
-       ===================================================== */
+    ===================================================== */
 
     if (
         enquiryMessage &&
@@ -81,11 +102,9 @@ function initializeEnquiryForm() {
             "input",
             function () {
 
-                const length =
-                    this.value.length;
-
                 characterCounter.textContent =
-                    `${length} / 1000`;
+                    this.value.length +
+                    " / 1000";
 
             }
         );
@@ -94,8 +113,8 @@ function initializeEnquiryForm() {
 
 
     /* =====================================================
-       MOBILE NUMBER INPUT
-       ===================================================== */
+       MOBILE INPUT
+    ===================================================== */
 
     if (mobileInput) {
 
@@ -105,8 +124,14 @@ function initializeEnquiryForm() {
 
                 this.value =
                     this.value
-                        .replace(/\D/g, "")
-                        .slice(0, 10);
+                        .replace(
+                            /\D/g,
+                            ""
+                        )
+                        .slice(
+                            0,
+                            10
+                        );
 
             }
         );
@@ -116,7 +141,7 @@ function initializeEnquiryForm() {
 
     /* =====================================================
        VALIDATION
-       ===================================================== */
+    ===================================================== */
 
     function validateForm() {
 
@@ -127,19 +152,18 @@ function initializeEnquiryForm() {
 
         /* -------------------------------------------------
            STUDENT NAME
-           ------------------------------------------------- */
+        ------------------------------------------------- */
 
-        const studentNameField =
+        const studentName =
             document.getElementById(
                 "studentName"
             );
 
-        const studentName =
-            studentNameField
-                ? studentNameField.value.trim()
-                : "";
 
-        if (!studentName) {
+        if (
+            !studentName ||
+            !studentName.value.trim()
+        ) {
 
             showError(
                 "studentName",
@@ -147,24 +171,24 @@ function initializeEnquiryForm() {
             );
 
             valid = false;
+
         }
 
 
         /* -------------------------------------------------
            GUARDIAN NAME
-           ------------------------------------------------- */
+        ------------------------------------------------- */
 
-        const guardianNameField =
+        const guardianName =
             document.getElementById(
                 "guardianName"
             );
 
-        const guardianName =
-            guardianNameField
-                ? guardianNameField.value.trim()
-                : "";
 
-        if (!guardianName) {
+        if (
+            !guardianName ||
+            !guardianName.value.trim()
+        ) {
 
             showError(
                 "guardianName",
@@ -172,24 +196,24 @@ function initializeEnquiryForm() {
             );
 
             valid = false;
+
         }
 
 
         /* -------------------------------------------------
            GUARDIAN TYPE
-           ------------------------------------------------- */
+        ------------------------------------------------- */
 
-        const guardianTypeField =
+        const guardianType =
             document.getElementById(
                 "guardianType"
             );
 
-        const guardianType =
-            guardianTypeField
-                ? guardianTypeField.value
-                : "";
 
-        if (!guardianType) {
+        if (
+            !guardianType ||
+            !guardianType.value
+        ) {
 
             showError(
                 "guardianType",
@@ -197,27 +221,28 @@ function initializeEnquiryForm() {
             );
 
             valid = false;
+
         }
 
 
         /* -------------------------------------------------
            MOBILE
-           ------------------------------------------------- */
+        ------------------------------------------------- */
 
-        const mobileField =
+        const mobile =
             document.getElementById(
                 "mobile"
             );
 
-        const mobile =
-            mobileField
-                ? mobileField.value.trim()
-                : "";
 
         const mobilePattern =
             /^[6-9]\d{9}$/;
 
-        if (!mobile) {
+
+        if (
+            !mobile ||
+            !mobile.value.trim()
+        ) {
 
             showError(
                 "mobile",
@@ -228,7 +253,9 @@ function initializeEnquiryForm() {
 
         }
         else if (
-            !mobilePattern.test(mobile)
+            !mobilePattern.test(
+                mobile.value.trim()
+            )
         ) {
 
             showError(
@@ -237,31 +264,33 @@ function initializeEnquiryForm() {
             );
 
             valid = false;
+
         }
 
 
         /* -------------------------------------------------
            EMAIL
-           Optional
-           ------------------------------------------------- */
+        ------------------------------------------------- */
 
-        const emailField =
+        const email =
             document.getElementById(
                 "email"
             );
 
-        const email =
-            emailField
-                ? emailField.value.trim()
-                : "";
 
-        if (email) {
+        if (
+            email &&
+            email.value.trim()
+        ) {
 
             const emailPattern =
                 /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+
             if (
-                !emailPattern.test(email)
+                !emailPattern.test(
+                    email.value.trim()
+                )
             ) {
 
                 showError(
@@ -270,25 +299,26 @@ function initializeEnquiryForm() {
                 );
 
                 valid = false;
+
             }
+
         }
 
 
         /* -------------------------------------------------
-           CLASS ENQUIRY FOR
-           ------------------------------------------------- */
+           CLASS
+        ------------------------------------------------- */
 
-        const classField =
+        const classEnquiryFor =
             document.getElementById(
                 "classEnquiryFor"
             );
 
-        const classEnquiryFor =
-            classField
-                ? classField.value
-                : "";
 
-        if (!classEnquiryFor) {
+        if (
+            !classEnquiryFor ||
+            !classEnquiryFor.value
+        ) {
 
             showError(
                 "classEnquiryFor",
@@ -296,43 +326,49 @@ function initializeEnquiryForm() {
             );
 
             valid = false;
+
         }
 
 
         /* -------------------------------------------------
            TRAINING TYPE
-           ------------------------------------------------- */
+        ------------------------------------------------- */
 
         const trainingType =
             document.querySelector(
                 'input[name="trainingType"]:checked'
             );
 
+
         if (!trainingType) {
 
-            const trainingError =
+            const error =
                 document.getElementById(
                     "trainingTypeError"
                 );
 
-            if (trainingError) {
 
-                trainingError.textContent =
+            if (error) {
+
+                error.textContent =
                     "Please select a training type.";
 
             }
 
+
             valid = false;
+
         }
 
 
         return valid;
+
     }
 
 
     /* =====================================================
        SHOW FIELD ERROR
-       ===================================================== */
+    ===================================================== */
 
     function showError(
         fieldId,
@@ -344,29 +380,36 @@ function initializeEnquiryForm() {
                 fieldId
             );
 
+
         const error =
             document.getElementById(
-                fieldId + "Error"
+                fieldId +
+                "Error"
             );
+
 
         if (field) {
 
             field.classList.add(
                 "input-error"
             );
+
         }
+
 
         if (error) {
 
             error.textContent =
                 message;
+
         }
+
     }
 
 
     /* =====================================================
        CLEAR ERRORS
-       ===================================================== */
+    ===================================================== */
 
     function clearErrors() {
 
@@ -392,16 +435,18 @@ function initializeEnquiryForm() {
             .forEach(
                 function (element) {
 
-                    element.textContent = "";
+                    element.textContent =
+                        "";
 
                 }
             );
+
     }
 
 
     /* =====================================================
-       REMOVE ERROR WHEN USER CORRECTS FIELD
-       ===================================================== */
+       CLEAR ERROR WHEN USER EDITS FIELD
+    ===================================================== */
 
     document
         .querySelectorAll(
@@ -441,7 +486,7 @@ function initializeEnquiryForm() {
 
     /* =====================================================
        LOADING STATE
-       ===================================================== */
+    ===================================================== */
 
     function setLoading(
         loading
@@ -451,6 +496,7 @@ function initializeEnquiryForm() {
 
             submitButton.disabled =
                 loading;
+
         }
 
 
@@ -461,18 +507,23 @@ function initializeEnquiryForm() {
                 submitButton.classList.add(
                     "loading"
                 );
+
             }
+
 
             if (buttonText) {
 
                 buttonText.textContent =
                     "SUBMITTING...";
+
             }
+
 
             if (loadingSpinner) {
 
                 loadingSpinner.style.display =
                     "inline-block";
+
             }
 
         }
@@ -483,38 +534,366 @@ function initializeEnquiryForm() {
                 submitButton.classList.remove(
                     "loading"
                 );
+
             }
+
 
             if (buttonText) {
 
                 buttonText.textContent =
                     "SEND ENQUIRY";
+
             }
+
 
             if (loadingSpinner) {
 
                 loadingSpinner.style.display =
                     "";
+
             }
+
         }
+
     }
 
 
     /* =====================================================
-       SHOW SUCCESS
-       ===================================================== */
+       GENERATE CLIENT TOKEN
+    ===================================================== */
 
-    function showSubmissionSuccess() {
+    function generateClientToken() {
+
+        if (
+            window.crypto &&
+            typeof window.crypto.randomUUID ===
+                "function"
+        ) {
+
+            return window.crypto.randomUUID();
+
+        }
+
+
+        return (
+            Date.now().toString(36) +
+            "_" +
+            Math.random()
+                .toString(36)
+                .substring(2) +
+            "_" +
+            Math.random()
+                .toString(36)
+                .substring(2)
+        );
+
+    }
+
+
+    /* =====================================================
+       JSONP LOOKUP
+    ===================================================== */
+
+    function lookupEnquiryId(
+        token
+    ) {
+
+        return new Promise(
+            function (resolve) {
+
+                const callbackName =
+                    "itsaCallback_" +
+                    Date.now() +
+                    "_" +
+                    Math.floor(
+                        Math.random() *
+                        100000
+                    );
+
+
+                const script =
+                    document.createElement(
+                        "script"
+                    );
+
+
+                let completed =
+                    false;
+
+
+                function cleanup() {
+
+                    if (
+                        script &&
+                        script.parentNode
+                    ) {
+
+                        script.parentNode.removeChild(
+                            script
+                        );
+
+                    }
+
+
+                    try {
+
+                        delete window[
+                            callbackName
+                        ];
+
+                    }
+                    catch (error) {
+
+                        window[
+                            callbackName
+                        ] = undefined;
+
+                    }
+
+                }
+
+
+                window[
+                    callbackName
+                ] = function (
+                    result
+                ) {
+
+                    if (completed) {
+                        return;
+                    }
+
+
+                    completed =
+                        true;
+
+
+                    cleanup();
+
+
+                    if (
+                        result &&
+                        result.success &&
+                        result.found &&
+                        result.enquiryId
+                    ) {
+
+                        resolve(
+                            result.enquiryId
+                        );
+
+                    }
+                    else {
+
+                        resolve(
+                            null
+                        );
+
+                    }
+
+                };
+
+
+                script.onerror =
+                    function () {
+
+                        if (completed) {
+                            return;
+                        }
+
+
+                        completed =
+                            true;
+
+
+                        cleanup();
+
+
+                        resolve(
+                            null
+                        );
+
+                    };
+
+
+                setTimeout(
+                    function () {
+
+                        if (completed) {
+                            return;
+                        }
+
+
+                        completed =
+                            true;
+
+
+                        cleanup();
+
+
+                        resolve(
+                            null
+                        );
+
+                    },
+                    4000
+                );
+
+
+                script.src =
+                    GOOGLE_SCRIPT_URL +
+                    "?action=getEnquiryId" +
+                    "&token=" +
+                    encodeURIComponent(
+                        token
+                    ) +
+                    "&callback=" +
+                    encodeURIComponent(
+                        callbackName
+                    );
+
+
+                document.head.appendChild(
+                    script
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       WAIT FOR REAL ENQUIRY ID
+    ===================================================== */
+
+    async function waitForEnquiryId(
+        token
+    ) {
+
+        /*
+         * Give Apps Script time to finish
+         * the POST and save the property.
+         */
+
+        for (
+            let attempt = 1;
+            attempt <= 10;
+            attempt++
+        ) {
+
+            console.log(
+                "Enquiry ID lookup attempt:",
+                attempt
+            );
+
+
+            const enquiryId =
+                await lookupEnquiryId(
+                    token
+                );
+
+
+            if (enquiryId) {
+
+                return enquiryId;
+
+            }
+
+
+            await new Promise(
+                function (resolve) {
+
+                    setTimeout(
+                        resolve,
+                        1000
+                    );
+
+                }
+            );
+
+        }
+
+
+        return null;
+
+    }
+
+
+    /* =====================================================
+       ESCAPE HTML
+    ===================================================== */
+
+    function escapeHtml(
+        value
+    ) {
+
+        return String(
+            value
+        )
+
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+
+            .replace(
+                /</g,
+                "&lt;"
+            )
+
+            .replace(
+                />/g,
+                "&gt;"
+            )
+
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    /* =====================================================
+       SUCCESS SCREEN
+    ===================================================== */
+
+    function showSubmissionSuccess(
+        enquiryId
+    ) {
 
         if (!enquiryForm) {
             return;
         }
 
+
         if (successEnquiryId) {
 
-            successEnquiryId.textContent =
-                "Your enquiry has been submitted successfully.";
+            if (enquiryId) {
+
+                successEnquiryId.innerHTML =
+                    "Enquiry ID: <strong>" +
+                    escapeHtml(
+                        enquiryId
+                    ) +
+                    "</strong>";
+
+            }
+            else {
+
+                successEnquiryId.textContent =
+                    "Your enquiry has been submitted successfully.";
+
+            }
+
         }
+
 
         enquiryForm.style.display =
             "none";
@@ -526,83 +905,80 @@ function initializeEnquiryForm() {
                 "active"
             );
 
+
             successScreen.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
+
+                behavior:
+                    "smooth",
+
+                block:
+                    "center"
+
             });
+
         }
+
     }
 
 
     /* =====================================================
-       SHOW ERROR
-       ===================================================== */
+       SUBMISSION ERROR
+    ===================================================== */
 
     function showSubmissionError(
         message
     ) {
 
-        alert(message);
+        alert(
+            message
+        );
+
     }
 
 
     /* =====================================================
        FORM SUBMISSION
-       ===================================================== */
+    ===================================================== */
 
     enquiryForm.addEventListener(
         "submit",
-        function (event) {
+        async function (event) {
 
             event.preventDefault();
 
 
-            console.log(
-                "========================================"
-            );
-
-            console.log(
-                "ITSA ENQUIRY SUBMISSION STARTED"
-            );
-
-            console.log(
-                "========================================"
-            );
-
-
             /* ---------------------------------------------
                VALIDATE
-               --------------------------------------------- */
+            --------------------------------------------- */
 
-            if (!validateForm()) {
-
-                console.warn(
-                    "ITSA Enquiry: validation failed."
-                );
+            if (
+                !validateForm()
+            ) {
 
                 const firstError =
                     document.querySelector(
                         ".input-error"
                     );
 
+
                 if (firstError) {
 
                     firstError.focus();
+
                 }
 
+
                 return;
+
             }
 
 
             /* ---------------------------------------------
-               CHECK GOOGLE SCRIPT URL
-               --------------------------------------------- */
+               CHECK APPS SCRIPT URL
+            --------------------------------------------- */
 
             if (
                 !GOOGLE_SCRIPT_URL ||
-                GOOGLE_SCRIPT_URL.includes(
-                    "YOUR_GOOGLE_SCRIPT_URL"
-                ) ||
                 !GOOGLE_SCRIPT_URL.includes(
                     "script.google.com/macros/s/"
                 ) ||
@@ -611,28 +987,41 @@ function initializeEnquiryForm() {
                 )
             ) {
 
-                console.error(
-                    "ITSA Enquiry: invalid Apps Script URL."
-                );
-
                 showSubmissionError(
-                    "The enquiry system is not configured correctly. Please contact the administrator."
+                    "The enquiry system is not configured correctly."
                 );
 
                 return;
+
             }
 
 
             /* ---------------------------------------------
                START LOADING
-               --------------------------------------------- */
+            --------------------------------------------- */
 
-            setLoading(true);
+            setLoading(
+                true
+            );
 
 
             /* ---------------------------------------------
-               COLLECT FORM DATA
-               --------------------------------------------- */
+               GENERATE TOKEN
+            --------------------------------------------- */
+
+            const clientToken =
+                generateClientToken();
+
+
+            console.log(
+                "ITSA client token:",
+                clientToken
+            );
+
+
+            /* ---------------------------------------------
+               FORM DATA
+            --------------------------------------------- */
 
             const formData =
                 new FormData(
@@ -640,61 +1029,44 @@ function initializeEnquiryForm() {
                 );
 
 
-            /* ---------------------------------------------
-               SOURCE
-               --------------------------------------------- */
-
             formData.set(
                 "source",
                 "Facebook"
             );
 
 
-            /* ---------------------------------------------
-               DEBUG FORM DATA
-               --------------------------------------------- */
-
-            console.log(
-                "ITSA Enquiry: form data"
+            formData.set(
+                "clientToken",
+                clientToken
             );
 
-            for (
-                const [key, value]
-                of formData.entries()
-            ) {
-
-                console.log(
-                    key + " = " + value
-                );
-            }
-
 
             /* ---------------------------------------------
-               UNIQUE IFRAME NAME
-               --------------------------------------------- */
+               HIDDEN IFRAME
+            --------------------------------------------- */
 
             const frameName =
-                "itsa_enquiry_" +
+                "itsa_enquiry_frame_" +
                 Date.now();
 
-
-            /* ---------------------------------------------
-               CREATE HIDDEN IFRAME
-               --------------------------------------------- */
 
             const iframe =
                 document.createElement(
                     "iframe"
                 );
 
+
             iframe.name =
                 frameName;
+
 
             iframe.id =
                 frameName;
 
+
             iframe.style.display =
                 "none";
+
 
             document.body.appendChild(
                 iframe
@@ -702,36 +1074,44 @@ function initializeEnquiryForm() {
 
 
             /* ---------------------------------------------
-               CREATE NATIVE POST FORM
-               --------------------------------------------- */
+               NATIVE POST FORM
+            --------------------------------------------- */
 
             const postForm =
                 document.createElement(
                     "form"
                 );
 
+
             postForm.method =
                 "POST";
+
 
             postForm.action =
                 GOOGLE_SCRIPT_URL;
 
+
             postForm.target =
                 frameName;
 
+
             postForm.acceptCharset =
                 "UTF-8";
+
 
             postForm.style.display =
                 "none";
 
 
             /* ---------------------------------------------
-               ADD ALL FORM VALUES
-               --------------------------------------------- */
+               ADD ALL DATA
+            --------------------------------------------- */
 
             for (
-                const [key, value]
+                const [
+                    key,
+                    value
+                ]
                 of formData.entries()
             ) {
 
@@ -740,143 +1120,153 @@ function initializeEnquiryForm() {
                         "input"
                     );
 
+
                 input.type =
                     "hidden";
 
+
                 input.name =
                     key;
+
 
                 input.value =
                     value == null
                         ? ""
                         : String(value);
 
+
                 postForm.appendChild(
                     input
                 );
+
             }
 
-
-            /* ---------------------------------------------
-               ADD POST FORM TO DOCUMENT
-               --------------------------------------------- */
 
             document.body.appendChild(
                 postForm
             );
 
 
-            console.log(
-                "ITSA Enquiry: sending POST request."
-            );
-
-            console.log(
-                "Target:",
-                GOOGLE_SCRIPT_URL
-            );
-
-
             /* ---------------------------------------------
                SEND POST
-               --------------------------------------------- */
+            --------------------------------------------- */
 
             try {
 
                 postForm.submit();
 
                 console.log(
-                    "ITSA Enquiry: POST request sent."
+                    "ITSA enquiry POST sent."
                 );
 
             }
             catch (error) {
 
                 console.error(
-                    "ITSA Enquiry: POST failed.",
+                    "ITSA POST error:",
                     error
                 );
 
-                setLoading(false);
+
+                setLoading(
+                    false
+                );
+
 
                 postForm.remove();
                 iframe.remove();
+
 
                 showSubmissionError(
                     "We could not submit your enquiry. Please try again."
                 );
 
+
                 return;
+
             }
 
 
             /* ---------------------------------------------
-               WAIT FOR APPS SCRIPT
-               --------------------------------------------- */
+               WAIT FOR REAL ID
+            --------------------------------------------- */
 
-            setTimeout(
-                function () {
-
-                    console.log(
-                        "ITSA Enquiry: submission process completed."
-                    );
+            const enquiryId =
+                await waitForEnquiryId(
+                    clientToken
+                );
 
 
-                    setLoading(
-                        false
-                    );
+            /* ---------------------------------------------
+               CLEANUP
+            --------------------------------------------- */
+
+            if (
+                postForm &&
+                postForm.parentNode
+            ) {
+
+                postForm.remove();
+
+            }
 
 
-                    /*
-                     * Google Apps Script is cross-origin.
-                     * The browser will not allow this page
-                     * to read the returned JSON response.
-                     *
-                     * The native POST itself has already
-                     * been sent to Apps Script.
-                     */
+            if (
+                iframe &&
+                iframe.parentNode
+            ) {
 
-                    showSubmissionSuccess();
+                iframe.remove();
+
+            }
 
 
-                    /* -----------------------------------------
-                       CLEAN TEMPORARY ELEMENTS
-                       ----------------------------------------- */
+            /* ---------------------------------------------
+               STOP LOADING
+            --------------------------------------------- */
 
-                    setTimeout(
-                        function () {
-
-                            if (
-                                postForm &&
-                                postForm.parentNode
-                            ) {
-
-                                postForm.remove();
-                            }
-
-
-                            if (
-                                iframe &&
-                                iframe.parentNode
-                            ) {
-
-                                iframe.remove();
-                            }
-
-                        },
-                        1000
-                    );
-
-                },
-                5000
+            setLoading(
+                false
             );
+
+
+            /* ---------------------------------------------
+               DISPLAY RESULT
+            --------------------------------------------- */
+
+            if (enquiryId) {
+
+                console.log(
+                    "REAL ENQUIRY ID:",
+                    enquiryId
+                );
+
+
+                showSubmissionSuccess(
+                    enquiryId
+                );
+
+            }
+            else {
+
+                console.warn(
+                    "ID lookup timed out."
+                );
+
+
+                showSubmissionSuccess(
+                    null
+                );
+
+            }
 
         }
     );
 
 
     /* =====================================================
-       NEW ENQUIRY BUTTON
-       ===================================================== */
+       NEW ENQUIRY
+    ===================================================== */
 
     if (newEnquiryButton) {
 
@@ -884,94 +1274,60 @@ function initializeEnquiryForm() {
             "click",
             function () {
 
-
-                /* -----------------------------------------
-                   RESET FORM
-                   ----------------------------------------- */
-
                 enquiryForm.reset();
 
-
-                /* -----------------------------------------
-                   RESET CHARACTER COUNTER
-                   ----------------------------------------- */
 
                 if (characterCounter) {
 
                     characterCounter.textContent =
                         "0 / 1000";
+
                 }
 
 
-                /* -----------------------------------------
-                   CLEAR ERRORS
-                   ----------------------------------------- */
-
                 clearErrors();
 
-
-                /* -----------------------------------------
-                   HIDE SUCCESS SCREEN
-                   ----------------------------------------- */
 
                 if (successScreen) {
 
                     successScreen.classList.remove(
                         "active"
                     );
+
                 }
 
-
-                /* -----------------------------------------
-                   SHOW FORM
-                   ----------------------------------------- */
 
                 enquiryForm.style.display =
                     "";
 
-
-                /* -----------------------------------------
-                   RESET BUTTON
-                   ----------------------------------------- */
 
                 setLoading(
                     false
                 );
 
 
-                /* -----------------------------------------
-                   SCROLL TOP
-                   ----------------------------------------- */
-
                 window.scrollTo({
-                    top: 0,
-                    behavior: "smooth"
+
+                    top:
+                        0,
+
+                    behavior:
+                        "smooth"
+
                 });
 
             }
         );
+
     }
 
 
     /* =====================================================
-       INITIALIZATION COMPLETE
-       ===================================================== */
-
-    console.log(
-        "========================================"
-    );
+       READY
+    ===================================================== */
 
     console.log(
         "ITSkillsAcademy Enquiry Form READY"
-    );
-
-    console.log(
-        "Google Apps Script:",
-        GOOGLE_SCRIPT_URL
-    );
-
-    console.log(
-        "========================================"
     );
 
 }
@@ -979,10 +1335,11 @@ function initializeEnquiryForm() {
 
 /* =========================================================
    START APPLICATION
-   ========================================================= */
+========================================================= */
 
 if (
-    document.readyState === "loading"
+    document.readyState ===
+    "loading"
 ) {
 
     document.addEventListener(
