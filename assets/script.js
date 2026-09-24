@@ -1,789 +1,998 @@
-javascript
-/* =====================================================
+/* =========================================================
    ITSkillsAcademy Enquiry Form
    Frontend Controller
-   Phase 2
-===================================================== */
+   FINAL CLEAN VERSION
+   ========================================================= */
 
 
-/* =====================================================
+/* =========================================================
    GOOGLE APPS SCRIPT WEB APP URL
-=====================================================
-
-   IMPORTANT:
-   Replace ONLY the URL below with your deployed
-   Google Apps Script /exec URL.
-
-   Example:
-  
-
-===================================================== */
+   ========================================================= */
 
 const GOOGLE_SCRIPT_URL =
     "https://script.google.com/macros/s/AKfycbyRkNKdCwCnsB5OS0M_ihFLY06dPcJW4AMZivroCPruaghc-OLJRgGR3jKxB-hO1GY/exec";
 
 
-/* =====================================================
-   DOM ELEMENTS
-===================================================== */
+/* =========================================================
+   APPLICATION INITIALIZATION
+   ========================================================= */
 
-const enquiryForm =
-    document.getElementById("enquiryForm");
+function initializeEnquiryForm() {
 
-const submitButton =
-    document.getElementById("submitButton");
+    /* =====================================================
+       DOM ELEMENTS
+       ===================================================== */
 
-const buttonText =
-    document.getElementById("buttonText");
+    const enquiryForm =
+        document.getElementById("enquiryForm");
 
-const loadingSpinner =
-    document.getElementById("loadingSpinner");
+    const submitButton =
+        document.getElementById("submitButton");
 
-const successScreen =
-    document.getElementById("successScreen");
+    const buttonText =
+        document.getElementById("buttonText");
 
-const successEnquiryId =
-    document.getElementById("successEnquiryId");
+    const loadingSpinner =
+        document.getElementById("loadingSpinner");
 
-const newEnquiryButton =
-    document.getElementById("newEnquiryButton");
+    const successScreen =
+        document.getElementById("successScreen");
 
-const enquiryMessage =
-    document.getElementById("enquiryMessage");
+    const successEnquiryId =
+        document.getElementById("successEnquiryId");
 
-const characterCounter =
-    document.getElementById("characterCounter");
+    const newEnquiryButton =
+        document.getElementById("newEnquiryButton");
 
+    const enquiryMessage =
+        document.getElementById("enquiryMessage");
 
-/* =====================================================
-   CHARACTER COUNTER
-===================================================== */
+    const characterCounter =
+        document.getElementById("characterCounter");
 
-if (enquiryMessage && characterCounter) {
-
-    enquiryMessage.addEventListener(
-        "input",
-        function () {
-
-            const length =
-                this.value.length;
-
-            characterCounter.textContent =
-                `${length} / 1000`;
-
-        }
-    );
-
-}
+    const mobileInput =
+        document.getElementById("mobile");
 
 
-/* =====================================================
-   MOBILE INPUT
-   Allow only numbers
-===================================================== */
+    /* =====================================================
+       CHECK FORM
+       ===================================================== */
 
-const mobileInput =
-    document.getElementById("mobile");
+    if (!enquiryForm) {
 
-
-if (mobileInput) {
-
-    mobileInput.addEventListener(
-        "input",
-        function () {
-
-            this.value =
-                this.value
-                    .replace(/\D/g, "")
-                    .slice(0, 10);
-
-        }
-    );
-
-}
-
-
-/* =====================================================
-   FORM VALIDATION
-===================================================== */
-
-function validateForm() {
-
-    let valid = true;
-
-
-    /* -----------------------------------------------
-       Clear previous errors
-    ------------------------------------------------ */
-
-    clearErrors();
-
-
-    /* -----------------------------------------------
-       Student Name
-    ------------------------------------------------ */
-
-    const studentName =
-        document
-            .getElementById("studentName")
-            .value
-            .trim();
-
-
-    if (!studentName) {
-
-        showError(
-            "studentName",
-            "Please enter student name."
+        console.error(
+            "ITSA Enquiry Form: #enquiryForm not found."
         );
 
-        valid = false;
-
+        return;
     }
 
 
-    /* -----------------------------------------------
-       Guardian Name
-    ------------------------------------------------ */
+    /* =====================================================
+       CHARACTER COUNTER
+       ===================================================== */
 
-    const guardianName =
-        document
-            .getElementById("guardianName")
-            .value
-            .trim();
-
-
-    if (!guardianName) {
-
-        showError(
-            "guardianName",
-            "Please enter guardian name."
-        );
-
-        valid = false;
-
-    }
-
-
-    /* -----------------------------------------------
-       Guardian Type
-    ------------------------------------------------ */
-
-    const guardianType =
-        document
-            .getElementById("guardianType")
-            .value;
-
-
-    if (!guardianType) {
-
-        showError(
-            "guardianType",
-            "Please select guardian type."
-        );
-
-        valid = false;
-
-    }
-
-
-    /* -----------------------------------------------
-       Mobile Number
-    ------------------------------------------------ */
-
-    const mobile =
-        document
-            .getElementById("mobile")
-            .value
-            .trim();
-
-
-    const mobilePattern =
-        /^[6-9]\d{9}$/;
-
-
-    if (!mobile) {
-
-        showError(
-            "mobile",
-            "Please enter mobile number."
-        );
-
-        valid = false;
-
-    }
-    else if (
-        !mobilePattern.test(mobile)
+    if (
+        enquiryMessage &&
+        characterCounter
     ) {
 
-        showError(
-            "mobile",
-            "Enter a valid 10-digit mobile number."
-        );
+        enquiryMessage.addEventListener(
+            "input",
+            function () {
 
-        valid = false;
+                const length =
+                    this.value.length;
+
+                characterCounter.textContent =
+                    `${length} / 1000`;
+
+            }
+        );
 
     }
 
 
-    /* -----------------------------------------------
-       Email Address
-       Optional field
-    ------------------------------------------------ */
+    /* =====================================================
+       MOBILE NUMBER INPUT
+       ===================================================== */
 
-    const email =
-        document
-            .getElementById("email")
-            .value
-            .trim();
+    if (mobileInput) {
+
+        mobileInput.addEventListener(
+            "input",
+            function () {
+
+                this.value =
+                    this.value
+                        .replace(/\D/g, "")
+                        .slice(0, 10);
+
+            }
+        );
+
+    }
 
 
-    if (email) {
+    /* =====================================================
+       VALIDATION
+       ===================================================== */
 
-        const emailPattern =
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    function validateForm() {
+
+        let valid = true;
+
+        clearErrors();
 
 
-        if (!emailPattern.test(email)) {
+        /* -------------------------------------------------
+           STUDENT NAME
+           ------------------------------------------------- */
+
+        const studentNameField =
+            document.getElementById(
+                "studentName"
+            );
+
+        const studentName =
+            studentNameField
+                ? studentNameField.value.trim()
+                : "";
+
+        if (!studentName) {
 
             showError(
-                "email",
-                "Please enter a valid email address."
+                "studentName",
+                "Please enter student name."
+            );
+
+            valid = false;
+        }
+
+
+        /* -------------------------------------------------
+           GUARDIAN NAME
+           ------------------------------------------------- */
+
+        const guardianNameField =
+            document.getElementById(
+                "guardianName"
+            );
+
+        const guardianName =
+            guardianNameField
+                ? guardianNameField.value.trim()
+                : "";
+
+        if (!guardianName) {
+
+            showError(
+                "guardianName",
+                "Please enter guardian name."
+            );
+
+            valid = false;
+        }
+
+
+        /* -------------------------------------------------
+           GUARDIAN TYPE
+           ------------------------------------------------- */
+
+        const guardianTypeField =
+            document.getElementById(
+                "guardianType"
+            );
+
+        const guardianType =
+            guardianTypeField
+                ? guardianTypeField.value
+                : "";
+
+        if (!guardianType) {
+
+            showError(
+                "guardianType",
+                "Please select guardian type."
+            );
+
+            valid = false;
+        }
+
+
+        /* -------------------------------------------------
+           MOBILE
+           ------------------------------------------------- */
+
+        const mobileField =
+            document.getElementById(
+                "mobile"
+            );
+
+        const mobile =
+            mobileField
+                ? mobileField.value.trim()
+                : "";
+
+        const mobilePattern =
+            /^[6-9]\d{9}$/;
+
+        if (!mobile) {
+
+            showError(
+                "mobile",
+                "Please enter mobile number."
             );
 
             valid = false;
 
         }
+        else if (
+            !mobilePattern.test(mobile)
+        ) {
 
-    }
-
-
-    /* -----------------------------------------------
-       Class Enquiry For
-    ------------------------------------------------ */
-
-    const classEnquiryFor =
-        document
-            .getElementById("classEnquiryFor")
-            .value;
-
-
-    if (!classEnquiryFor) {
-
-        showError(
-            "classEnquiryFor",
-            "Please select the class."
-        );
-
-        valid = false;
-
-    }
-
-
-    /* -----------------------------------------------
-       Training Type
-    ------------------------------------------------ */
-
-    const trainingType =
-        document.querySelector(
-            'input[name="trainingType"]:checked'
-        );
-
-
-    if (!trainingType) {
-
-        const trainingError =
-            document.getElementById(
-                "trainingTypeError"
+            showError(
+                "mobile",
+                "Enter a valid 10-digit mobile number."
             );
 
-
-        if (trainingError) {
-
-            trainingError.textContent =
-                "Please select a training type.";
-
+            valid = false;
         }
 
 
-        valid = false;
+        /* -------------------------------------------------
+           EMAIL
+           Optional
+           ------------------------------------------------- */
 
+        const emailField =
+            document.getElementById(
+                "email"
+            );
+
+        const email =
+            emailField
+                ? emailField.value.trim()
+                : "";
+
+        if (email) {
+
+            const emailPattern =
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (
+                !emailPattern.test(email)
+            ) {
+
+                showError(
+                    "email",
+                    "Please enter a valid email address."
+                );
+
+                valid = false;
+            }
+        }
+
+
+        /* -------------------------------------------------
+           CLASS ENQUIRY FOR
+           ------------------------------------------------- */
+
+        const classField =
+            document.getElementById(
+                "classEnquiryFor"
+            );
+
+        const classEnquiryFor =
+            classField
+                ? classField.value
+                : "";
+
+        if (!classEnquiryFor) {
+
+            showError(
+                "classEnquiryFor",
+                "Please select the class."
+            );
+
+            valid = false;
+        }
+
+
+        /* -------------------------------------------------
+           TRAINING TYPE
+           ------------------------------------------------- */
+
+        const trainingType =
+            document.querySelector(
+                'input[name="trainingType"]:checked'
+            );
+
+        if (!trainingType) {
+
+            const trainingError =
+                document.getElementById(
+                    "trainingTypeError"
+                );
+
+            if (trainingError) {
+
+                trainingError.textContent =
+                    "Please select a training type.";
+
+            }
+
+            valid = false;
+        }
+
+
+        return valid;
     }
 
 
-    return valid;
+    /* =====================================================
+       SHOW FIELD ERROR
+       ===================================================== */
 
-}
+    function showError(
+        fieldId,
+        message
+    ) {
 
+        const field =
+            document.getElementById(
+                fieldId
+            );
 
-/* =====================================================
-   SHOW FIELD ERROR
-===================================================== */
+        const error =
+            document.getElementById(
+                fieldId + "Error"
+            );
 
-function showError(
-    fieldId,
-    message
-) {
+        if (field) {
 
-    const field =
-        document.getElementById(
-            fieldId
-        );
+            field.classList.add(
+                "input-error"
+            );
+        }
 
+        if (error) {
 
-    const error =
-        document.getElementById(
-            fieldId + "Error"
-        );
-
-
-    if (field) {
-
-        field.classList.add(
-            "input-error"
-        );
-
+            error.textContent =
+                message;
+        }
     }
 
 
-    if (error) {
+    /* =====================================================
+       CLEAR ERRORS
+       ===================================================== */
 
-        error.textContent =
-            message;
+    function clearErrors() {
 
+        document
+            .querySelectorAll(
+                ".input-error"
+            )
+            .forEach(
+                function (element) {
+
+                    element.classList.remove(
+                        "input-error"
+                    );
+
+                }
+            );
+
+
+        document
+            .querySelectorAll(
+                ".error-message"
+            )
+            .forEach(
+                function (element) {
+
+                    element.textContent = "";
+
+                }
+            );
     }
 
-}
 
-
-/* =====================================================
-   CLEAR ALL ERRORS
-===================================================== */
-
-function clearErrors() {
+    /* =====================================================
+       REMOVE ERROR WHEN USER CORRECTS FIELD
+       ===================================================== */
 
     document
         .querySelectorAll(
-            ".input-error"
+            "#enquiryForm input, " +
+            "#enquiryForm select, " +
+            "#enquiryForm textarea"
         )
         .forEach(
-            element => {
+            function (element) {
 
-                element.classList.remove(
-                    "input-error"
+                element.addEventListener(
+                    "input",
+                    function () {
+
+                        this.classList.remove(
+                            "input-error"
+                        );
+
+                    }
+                );
+
+
+                element.addEventListener(
+                    "change",
+                    function () {
+
+                        this.classList.remove(
+                            "input-error"
+                        );
+
+                    }
                 );
 
             }
         );
 
 
-    document
-        .querySelectorAll(
-            ".error-message"
-        )
-        .forEach(
-            element => {
+    /* =====================================================
+       LOADING STATE
+       ===================================================== */
 
-                element.textContent = "";
+    function setLoading(
+        loading
+    ) {
+
+        if (submitButton) {
+
+            submitButton.disabled =
+                loading;
+        }
+
+
+        if (loading) {
+
+            if (submitButton) {
+
+                submitButton.classList.add(
+                    "loading"
+                );
+            }
+
+            if (buttonText) {
+
+                buttonText.textContent =
+                    "SUBMITTING...";
+            }
+
+            if (loadingSpinner) {
+
+                loadingSpinner.style.display =
+                    "inline-block";
+            }
+
+        }
+        else {
+
+            if (submitButton) {
+
+                submitButton.classList.remove(
+                    "loading"
+                );
+            }
+
+            if (buttonText) {
+
+                buttonText.textContent =
+                    "SEND ENQUIRY";
+            }
+
+            if (loadingSpinner) {
+
+                loadingSpinner.style.display =
+                    "";
+            }
+        }
+    }
+
+
+    /* =====================================================
+       SHOW SUCCESS
+       ===================================================== */
+
+    function showSubmissionSuccess() {
+
+        if (!enquiryForm) {
+            return;
+        }
+
+        if (successEnquiryId) {
+
+            successEnquiryId.textContent =
+                "Your enquiry has been submitted successfully.";
+        }
+
+        enquiryForm.style.display =
+            "none";
+
+
+        if (successScreen) {
+
+            successScreen.classList.add(
+                "active"
+            );
+
+            successScreen.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+        }
+    }
+
+
+    /* =====================================================
+       SHOW ERROR
+       ===================================================== */
+
+    function showSubmissionError(
+        message
+    ) {
+
+        alert(message);
+    }
+
+
+    /* =====================================================
+       FORM SUBMISSION
+       ===================================================== */
+
+    enquiryForm.addEventListener(
+        "submit",
+        function (event) {
+
+            event.preventDefault();
+
+
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "ITSA ENQUIRY SUBMISSION STARTED"
+            );
+
+            console.log(
+                "========================================"
+            );
+
+
+            /* ---------------------------------------------
+               VALIDATE
+               --------------------------------------------- */
+
+            if (!validateForm()) {
+
+                console.warn(
+                    "ITSA Enquiry: validation failed."
+                );
+
+                const firstError =
+                    document.querySelector(
+                        ".input-error"
+                    );
+
+                if (firstError) {
+
+                    firstError.focus();
+                }
+
+                return;
+            }
+
+
+            /* ---------------------------------------------
+               CHECK GOOGLE SCRIPT URL
+               --------------------------------------------- */
+
+            if (
+                !GOOGLE_SCRIPT_URL ||
+                GOOGLE_SCRIPT_URL.includes(
+                    "YOUR_GOOGLE_SCRIPT_URL"
+                ) ||
+                !GOOGLE_SCRIPT_URL.includes(
+                    "script.google.com/macros/s/"
+                ) ||
+                !GOOGLE_SCRIPT_URL.endsWith(
+                    "/exec"
+                )
+            ) {
+
+                console.error(
+                    "ITSA Enquiry: invalid Apps Script URL."
+                );
+
+                showSubmissionError(
+                    "The enquiry system is not configured correctly. Please contact the administrator."
+                );
+
+                return;
+            }
+
+
+            /* ---------------------------------------------
+               START LOADING
+               --------------------------------------------- */
+
+            setLoading(true);
+
+
+            /* ---------------------------------------------
+               COLLECT FORM DATA
+               --------------------------------------------- */
+
+            const formData =
+                new FormData(
+                    enquiryForm
+                );
+
+
+            /* ---------------------------------------------
+               SOURCE
+               --------------------------------------------- */
+
+            formData.set(
+                "source",
+                "Facebook"
+            );
+
+
+            /* ---------------------------------------------
+               DEBUG FORM DATA
+               --------------------------------------------- */
+
+            console.log(
+                "ITSA Enquiry: form data"
+            );
+
+            for (
+                const [key, value]
+                of formData.entries()
+            ) {
+
+                console.log(
+                    key + " = " + value
+                );
+            }
+
+
+            /* ---------------------------------------------
+               UNIQUE IFRAME NAME
+               --------------------------------------------- */
+
+            const frameName =
+                "itsa_enquiry_" +
+                Date.now();
+
+
+            /* ---------------------------------------------
+               CREATE HIDDEN IFRAME
+               --------------------------------------------- */
+
+            const iframe =
+                document.createElement(
+                    "iframe"
+                );
+
+            iframe.name =
+                frameName;
+
+            iframe.id =
+                frameName;
+
+            iframe.style.display =
+                "none";
+
+            document.body.appendChild(
+                iframe
+            );
+
+
+            /* ---------------------------------------------
+               CREATE NATIVE POST FORM
+               --------------------------------------------- */
+
+            const postForm =
+                document.createElement(
+                    "form"
+                );
+
+            postForm.method =
+                "POST";
+
+            postForm.action =
+                GOOGLE_SCRIPT_URL;
+
+            postForm.target =
+                frameName;
+
+            postForm.acceptCharset =
+                "UTF-8";
+
+            postForm.style.display =
+                "none";
+
+
+            /* ---------------------------------------------
+               ADD ALL FORM VALUES
+               --------------------------------------------- */
+
+            for (
+                const [key, value]
+                of formData.entries()
+            ) {
+
+                const input =
+                    document.createElement(
+                        "input"
+                    );
+
+                input.type =
+                    "hidden";
+
+                input.name =
+                    key;
+
+                input.value =
+                    value == null
+                        ? ""
+                        : String(value);
+
+                postForm.appendChild(
+                    input
+                );
+            }
+
+
+            /* ---------------------------------------------
+               ADD POST FORM TO DOCUMENT
+               --------------------------------------------- */
+
+            document.body.appendChild(
+                postForm
+            );
+
+
+            console.log(
+                "ITSA Enquiry: sending POST request."
+            );
+
+            console.log(
+                "Target:",
+                GOOGLE_SCRIPT_URL
+            );
+
+
+            /* ---------------------------------------------
+               SEND POST
+               --------------------------------------------- */
+
+            try {
+
+                postForm.submit();
+
+                console.log(
+                    "ITSA Enquiry: POST request sent."
+                );
+
+            }
+            catch (error) {
+
+                console.error(
+                    "ITSA Enquiry: POST failed.",
+                    error
+                );
+
+                setLoading(false);
+
+                postForm.remove();
+                iframe.remove();
+
+                showSubmissionError(
+                    "We could not submit your enquiry. Please try again."
+                );
+
+                return;
+            }
+
+
+            /* ---------------------------------------------
+               WAIT FOR APPS SCRIPT
+               --------------------------------------------- */
+
+            setTimeout(
+                function () {
+
+                    console.log(
+                        "ITSA Enquiry: submission process completed."
+                    );
+
+
+                    setLoading(
+                        false
+                    );
+
+
+                    /*
+                     * Google Apps Script is cross-origin.
+                     * The browser will not allow this page
+                     * to read the returned JSON response.
+                     *
+                     * The native POST itself has already
+                     * been sent to Apps Script.
+                     */
+
+                    showSubmissionSuccess();
+
+
+                    /* -----------------------------------------
+                       CLEAN TEMPORARY ELEMENTS
+                       ----------------------------------------- */
+
+                    setTimeout(
+                        function () {
+
+                            if (
+                                postForm &&
+                                postForm.parentNode
+                            ) {
+
+                                postForm.remove();
+                            }
+
+
+                            if (
+                                iframe &&
+                                iframe.parentNode
+                            ) {
+
+                                iframe.remove();
+                            }
+
+                        },
+                        1000
+                    );
+
+                },
+                5000
+            );
+
+        }
+    );
+
+
+    /* =====================================================
+       NEW ENQUIRY BUTTON
+       ===================================================== */
+
+    if (newEnquiryButton) {
+
+        newEnquiryButton.addEventListener(
+            "click",
+            function () {
+
+
+                /* -----------------------------------------
+                   RESET FORM
+                   ----------------------------------------- */
+
+                enquiryForm.reset();
+
+
+                /* -----------------------------------------
+                   RESET CHARACTER COUNTER
+                   ----------------------------------------- */
+
+                if (characterCounter) {
+
+                    characterCounter.textContent =
+                        "0 / 1000";
+                }
+
+
+                /* -----------------------------------------
+                   CLEAR ERRORS
+                   ----------------------------------------- */
+
+                clearErrors();
+
+
+                /* -----------------------------------------
+                   HIDE SUCCESS SCREEN
+                   ----------------------------------------- */
+
+                if (successScreen) {
+
+                    successScreen.classList.remove(
+                        "active"
+                    );
+                }
+
+
+                /* -----------------------------------------
+                   SHOW FORM
+                   ----------------------------------------- */
+
+                enquiryForm.style.display =
+                    "";
+
+
+                /* -----------------------------------------
+                   RESET BUTTON
+                   ----------------------------------------- */
+
+                setLoading(
+                    false
+                );
+
+
+                /* -----------------------------------------
+                   SCROLL TOP
+                   ----------------------------------------- */
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
 
             }
         );
-
-}
-
-
-/* =====================================================
-   REMOVE ERROR WHEN USER CORRECTS FIELD
-===================================================== */
-
-document
-    .querySelectorAll(
-        "#enquiryForm input, #enquiryForm select, #enquiryForm textarea"
-    )
-    .forEach(
-        element => {
-
-
-            /* -----------------------------------------
-               Input event
-            ------------------------------------------ */
-
-            element.addEventListener(
-                "input",
-                function () {
-
-                    this.classList.remove(
-                        "input-error"
-                    );
-
-                }
-            );
-
-
-            /* -----------------------------------------
-               Change event
-            ------------------------------------------ */
-
-            element.addEventListener(
-                "change",
-                function () {
-
-                    this.classList.remove(
-                        "input-error"
-                    );
-
-                }
-            );
-
-        }
-    );
-
-
-/* =====================================================
-   FORM SUBMISSION
-===================================================== */
-
-enquiryForm.addEventListener("submit", function (event) {
-
-    event.preventDefault();
-
-    console.log("=== ITSA ENQUIRY TEST START ===");
-
-    if (!validateForm()) {
-        console.log("FORM VALIDATION FAILED");
-        return;
     }
 
-    console.log("GOOGLE_SCRIPT_URL:", GOOGLE_SCRIPT_URL);
 
-    if (
-        !GOOGLE_SCRIPT_URL ||
-        GOOGLE_SCRIPT_URL.includes("YOUR_GOOGLE_SCRIPT_URL")
-    ) {
-        console.error("GOOGLE SCRIPT URL IS NOT CONFIGURED");
-        showSubmissionError(
-            "The enquiry system is not configured yet."
-        );
-        return;
-    }
-
-    setLoading(true);
-
-    const formData = new FormData(enquiryForm);
-
-    formData.set("source", "Facebook");
-
-    console.log("FORM DATA:");
-
-    for (const [key, value] of formData.entries()) {
-        console.log(key, "=", value);
-    }
-
-    /*
-    ============================================================
-    CREATE TEMPORARY HIDDEN IFRAME
-    ============================================================
-    */
-
-    const iframeName =
-        "itsaEnquiryFrame_" + Date.now();
-
-    const iframe =
-        document.createElement("iframe");
-
-    iframe.name = iframeName;
-    iframe.style.display = "none";
-
-    document.body.appendChild(iframe);
-
-    /*
-    ============================================================
-    CREATE NATIVE HTML FORM
-    ============================================================
-    */
-
-    const nativeForm =
-        document.createElement("form");
-
-    nativeForm.method = "POST";
-
-    nativeForm.action =
-        GOOGLE_SCRIPT_URL;
-
-    nativeForm.target =
-        iframeName;
-
-    nativeForm.style.display = "none";
-
-    /*
-    ============================================================
-    COPY FORM DATA
-    ============================================================
-    */
-
-    for (const [key, value] of formData.entries()) {
-
-        const input =
-            document.createElement("input");
-
-        input.type = "hidden";
-
-        input.name = key;
-
-        input.value = value;
-
-        nativeForm.appendChild(input);
-    }
-
-    document.body.appendChild(nativeForm);
+    /* =====================================================
+       INITIALIZATION COMPLETE
+       ===================================================== */
 
     console.log(
-        "POST TARGET:",
-        nativeForm.action
+        "========================================"
     );
 
     console.log(
-        "SUBMITTING NATIVE FORM..."
+        "ITSkillsAcademy Enquiry Form READY"
     );
-
-    /*
-    ============================================================
-    SUBMIT
-    ============================================================
-    */
-
-    nativeForm.submit();
 
     console.log(
-        "NATIVE FORM SUBMIT CALLED"
+        "Google Apps Script:",
+        GOOGLE_SCRIPT_URL
     );
 
-    /*
-    ============================================================
-    WAIT FOR GOOGLE APPS SCRIPT
-    ============================================================
-    */
-
-    setTimeout(function () {
-
-        console.log(
-            "5 SECOND CHECK COMPLETED"
-        );
-
-        setLoading(false);
-
-        showSubmissionSuccess();
-
-        nativeForm.remove();
-
-        iframe.remove();
-
-    }, 5000);
-
-});
-
-
-catch (error) {
-
-    console.error(
-        "Submission error:",
-        error
-    );
-
-
-    setLoading(false);
-
-
-    showSubmissionError(
-        "We could not submit your enquiry. Please try again."
+    console.log(
+        "========================================"
     );
 
 }
 
 
-            /* -----------------------------------------
-               STEP 10 — Stop loading state
-            ------------------------------------------ */
+/* =========================================================
+   START APPLICATION
+   ========================================================= */
 
-            setLoading(false);
-
-        }
-
-    }
-);
-
-
-/* =====================================================
-   LOADING STATE
-===================================================== */
-
-function setLoading(
-    loading
+if (
+    document.readyState === "loading"
 ) {
 
-    submitButton.disabled =
-        loading;
-
-
-    if (loading) {
-
-        submitButton.classList.add(
-            "loading"
-        );
-
-        buttonText.textContent =
-            "SUBMITTING...";
-
-    }
-    else {
-
-        submitButton.classList.remove(
-            "loading"
-        );
-
-        buttonText.textContent =
-            "SEND ENQUIRY";
-
-    }
-
-}
-
-
-/* =====================================================
-   SHOW SUCCESS SCREEN
-===================================================== */
-
-function showSuccess(
-    enquiryId
-) {
-
-
-    /* -----------------------------------------------
-       Display Enquiry ID
-    ------------------------------------------------ */
-
-    successEnquiryId.textContent =
-        enquiryId;
-
-
-    /* -----------------------------------------------
-       Hide form
-    ------------------------------------------------ */
-
-    enquiryForm.style.display =
-        "none";
-
-
-    /* -----------------------------------------------
-       Show success screen
-    ------------------------------------------------ */
-
-    successScreen.classList.add(
-        "active"
-    );
-
-
-    /* -----------------------------------------------
-       Scroll to success message
-    ------------------------------------------------ */
-
-    successScreen.scrollIntoView({
-
-        behavior: "smooth",
-
-        block: "center"
-
-    });
-
-}
-
-
-/* =====================================================
-   SUBMISSION ERROR
-===================================================== */
-
-function showSubmissionError(
-    message
-) {
-
-    /*
-     * Phase 2 uses a browser alert.
-     *
-     * We can replace this later with a beautiful
-     * inline notification without changing the
-     * backend.
-     */
-
-    alert(
-        message
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeEnquiryForm
     );
 
 }
+else {
 
+    initializeEnquiryForm();
 
-/* =====================================================
-   NEW ENQUIRY
-===================================================== */
-
-newEnquiryButton.addEventListener(
-    "click",
-    function () {
-
-
-        /* ---------------------------------------------
-           Reset form
-        ---------------------------------------------- */
-
-        enquiryForm.reset();
-
-
-        /* ---------------------------------------------
-           Reset character counter
-        ---------------------------------------------- */
-
-        if (characterCounter) {
-
-            characterCounter.textContent =
-                "0 / 1000";
-
-        }
-
-
-        /* ---------------------------------------------
-           Clear validation errors
-        ---------------------------------------------- */
-
-        clearErrors();
-
-
-        /* ---------------------------------------------
-           Hide success screen
-        ---------------------------------------------- */
-
-        successScreen.classList.remove(
-            "active"
-        );
-
-
-        /* ---------------------------------------------
-           Show form again
-        ---------------------------------------------- */
-
-        enquiryForm.style.display =
-            "";
-
-
-        /* ---------------------------------------------
-           Scroll to top
-        ---------------------------------------------- */
-
-        window.scrollTo({
-
-            top: 0,
-
-            behavior: "smooth"
-
-        });
-
-    }
-);
+}
