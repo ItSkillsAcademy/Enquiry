@@ -1,4 +1,4 @@
-++++```javascript
+javascript
 /* =====================================================
    ITSkillsAcademy Enquiry Form
    Frontend Controller
@@ -20,7 +20,7 @@
 ===================================================== */
 
 const GOOGLE_SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbyRkNKdCwCnsB5OS0M_ihFLY06dPcJW4AMZivroCPruaghc-OLJRgGR3jKxB-hO1GY/exec";
+    "PASTE_YOUR_GOOGLE_APPS_SCRIPT_EXEC_URL_HERE";
 
 
 /* =====================================================
@@ -538,25 +538,55 @@ enquiryForm.addEventListener(
                Use GOOGLE_SCRIPT_URL here.
                Do NOT put the URL directly into fetch().
             ------------------------------------------ */
-
-           const postData = new
+            const postData = new
 			URLSearchParams();
 			
 			for (const [key, value] of
 			formData.entries()) {
 			postData.append(key, value);
 			}
-           
-            const response =
-                await fetch(
-                    GOOGLE_SCRIPT_URL,
-                    {
-                        method: "POST",
-                        body: formData
-                    }
-                );
+			const iframe = document.createElement("iframe");
 
+iframe.name = "googleScriptFrame";
+iframe.style.display = "none";
 
+document.body.appendChild(iframe);
+
+const nativeForm = document.createElement("form");
+
+nativeForm.method = "POST";
+nativeForm.action = GOOGLE_SCRIPT_URL;
+nativeForm.target = "googleScriptFrame";
+nativeForm.style.display = "none";
+
+for (const [key, value] of formData.entries()) {
+    const input = document.createElement("input");
+
+    input.type = "hidden";
+    input.name = key;
+    input.value = value;
+
+    nativeForm.appendChild(input);
+}
+
+document.body.appendChild(nativeForm);
+
+nativeForm.submit();
+
+setTimeout(() => {
+
+    submitButton.disabled = false;
+    submitButton.textContent = "SEND ENQUIRY";
+
+    alert("Your enquiry has been submitted successfully!");
+
+    enquiryForm.reset();
+
+    nativeForm.remove();
+    iframe.remove();
+
+}, 5000);		
+			        
             /* -----------------------------------------
                STEP 7 — Read server response
             ------------------------------------------ */
